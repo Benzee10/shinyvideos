@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getVideoBySlug, getAllVideos } from '../lib/videos';
 import { Video } from '../types';
 import Tag from '../components/Tag';
 import { ClockIcon, EyeIcon, FolderIcon } from '../components/Icons';
 import { trackView, getViews } from '../lib/analytics';
+import AdBanner from '../components/AdBanner';
 
 const WatchPageSkeleton = () => (
   <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
@@ -81,7 +82,7 @@ const WatchPage: React.FC = () => {
           const sameCategory = allVideos.filter(v => v.category === currentVideo.category && v.slug !== slug);
           const otherVideos = allVideos.filter(v => v.category !== currentVideo.category && v.slug !== slug);
           
-          setRelatedVideos([...sameCategory, ...otherVideos].slice(0, 5));
+          setRelatedVideos([...sameCategory, ...otherVideos].slice(0, 10));
         }
       }
       setLoading(false);
@@ -92,6 +93,27 @@ const WatchPage: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [slug]);
+
+  const upNextItems = useMemo(() => {
+    const items: JSX.Element[] = relatedVideos.map(relatedVideo => (
+      <Link to={`/video/${relatedVideo.slug}`} key={relatedVideo.slug} className="flex items-start gap-4 bg-gray-800/50 p-3 rounded-lg hover:bg-gray-700/70 transition-colors duration-200 group">
+        <div className="w-2/5 flex-shrink-0">
+          <img src={relatedVideo.thumbnail} alt={relatedVideo.title} className="rounded-md aspect-video object-cover" />
+        </div>
+        <div className="w-3/5">
+          <h3 className="text-md font-semibold text-white group-hover:text-lime-300 transition-colors duration-200 line-clamp-2">{relatedVideo.title}</h3>
+          <p className="text-sm text-gray-400 line-clamp-1">{relatedVideo.category}</p>
+        </div>
+      </Link>
+    ));
+
+    // Insert an ad at position 2 (index 1) if there are enough videos
+    if (items.length > 1) {
+      items.splice(1, 0, <AdBanner key="sidebar-ad" type="sidebar" />);
+    }
+
+    return items;
+  }, [relatedVideos]);
 
   if (loading) {
     return <WatchPageSkeleton />;
@@ -120,6 +142,12 @@ const WatchPage: React.FC = () => {
               className="w-full h-full"
             ></iframe>
           </div>
+          
+          {/* Ad Banner Below Video */}
+          <div className="my-6">
+            <AdBanner type="banner" />
+          </div>
+
           <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-3">{video.title}</h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-400 mb-4">
             <div className="flex items-center gap-2">
@@ -158,17 +186,7 @@ const WatchPage: React.FC = () => {
         <div className="lg:w-1/3">
           <h2 className="text-2xl font-bold text-white mb-4 border-l-4 border-lime-400 pl-4">Up Next</h2>
           <div className="space-y-4">
-            {relatedVideos.map(relatedVideo => (
-              <Link to={`/video/${relatedVideo.slug}`} key={relatedVideo.slug} className="flex items-start gap-4 bg-gray-800/50 p-3 rounded-lg hover:bg-gray-700/70 transition-colors duration-200 group">
-                <div className="w-2/5 flex-shrink-0">
-                  <img src={relatedVideo.thumbnail} alt={relatedVideo.title} className="rounded-md aspect-video object-cover" />
-                </div>
-                <div className="w-3/5">
-                  <h3 className="text-md font-semibold text-white group-hover:text-lime-300 transition-colors duration-200 line-clamp-2">{relatedVideo.title}</h3>
-                  <p className="text-sm text-gray-400 line-clamp-1">{relatedVideo.category}</p>
-                </div>
-              </Link>
-            ))}
+            {upNextItems}
           </div>
         </div>
       </div>

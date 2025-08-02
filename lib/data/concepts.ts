@@ -1,14 +1,13 @@
-import { Video } from '../../types';
 
-export const videos: Omit<Video, 'category'>[] = [
+export default [
    {
-    slug: 'building-a-rest-api-with-nodejs',
-    title: 'Building a REST API with Node.js & Express',
-    uploadDate: '2025-08-02',
-    thumbnail: 'https://cdn-media.xerotica.com/thumbs/6/6/b/b/3/7306a9d061347ea70c2273171edc80a6.mp4/1280/7306a9d061347ea70c2273171edc80a6.mp4_2_1280.jpg',
-    videoUrl: 'https://www.xerotica.com/embed/55735',
-    duration: '06:00',
-    tags: ['Node.js', 'API', 'Backend'],
-    description: `A complete guide to building a robust REST API using Node.js and the Express framework. We will set up routes, controllers, and middleware for a real-world application.`
+    slug: 'ux-design-principles-for-developers',
+    title: 'UX Design Principles for Developers',
+    uploadDate: '2024-06-12',
+    thumbnail: 'https://picsum.photos/seed/ux-design/1280/720',
+    videoUrl: 'https://www.youtube.com/embed/vB1zT4yBDuA',
+    duration: '21:57',
+    tags: ['UI/UX', 'Design', 'Development'],
+    description: `You don't need to be a designer to create great user experiences. This video teaches developers the core principles of UX design to make your applications more intuitive and user-friendly.`
   },
 ];

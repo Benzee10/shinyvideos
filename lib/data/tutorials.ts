@@ -1,6 +1,5 @@
-import { Video } from '../../types';
 
-export const videos: Omit<Video, 'category'>[] = [
+export default [
   {
     slug: 'getting-started-with-react-hooks',
     title: 'Getting Started With React Hooks',

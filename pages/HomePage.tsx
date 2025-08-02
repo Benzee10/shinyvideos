@@ -5,10 +5,19 @@ import VideoCard from '../components/VideoCard';
 import { ChevronDownIcon } from '../components/Icons';
 import { getViews } from '../lib/analytics';
 import VideoCardSkeleton from '../components/VideoCardSkeleton';
+import AdBanner from '../components/AdBanner';
 
 interface HomePageProps {
   searchQuery: string;
 }
+
+const categoryColors: Record<string, string> = {
+  'Tutorials': 'border-lime-400',
+  'Deep Dives': 'border-sky-400',
+  'Concepts': 'border-amber-400',
+  'Tools & Tech': 'border-indigo-400',
+  'User Uploads': 'border-purple-400',
+};
 
 const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
   const [loading, setLoading] = useState(true);
@@ -26,7 +35,7 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
   }, []);
 
   const categorizedVideos = useMemo(() => getVideosByCategory(), []);
-  const categories = useMemo(() => Object.keys(categorizedVideos), [categorizedVideos]);
+  const categories = useMemo(() => Object.keys(categorizedVideos).sort((a,b) => a === 'User Uploads' ? 1 : b === 'User Uploads' ? -1 : a.localeCompare(b)), [categorizedVideos]);
 
   const recentVideos = useMemo(() => {
     return [...allVideos]
@@ -68,7 +77,7 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
     
     return videos;
   }, [searchQuery, allVideos, selectedTag]);
-
+  
   const getHeading = () => {
     if (searchQuery) {
       return `Results for "${searchQuery}"`;
@@ -80,6 +89,20 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
   }
   
   const isFiltered = searchQuery || selectedTag;
+
+  const renderedFilteredItems = useMemo(() => {
+    if (!isFiltered) return [];
+
+    const items: JSX.Element[] = [];
+    filteredVideos.forEach((video, index) => {
+        items.push(<VideoCard key={video.slug} video={video} views={getViews(video.slug)} />);
+        // Insert an ad after the 4th video, then every 8 videos after that.
+        if (index === 3 || (index > 3 && (index - 3) % 8 === 0)) {
+            items.push(<AdBanner key={`ad-${index}`} type="card" />);
+        }
+    });
+    return items;
+  }, [filteredVideos, isFiltered]);
 
   const renderSkeletons = (count: number) => (
     <div className="flex overflow-x-auto space-x-6 pb-4 -mx-4 px-4 horizontal-scroll">
@@ -106,6 +129,13 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
               ))}
             </div>
           )}
+        </div>
+      )}
+      
+      {/* Ad Banner */}
+      {!isFiltered && !loading && (
+        <div className="mb-12">
+          <AdBanner type="banner" />
         </div>
       )}
 
@@ -160,11 +190,9 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-8 border-b-2 border-cyan-400 pb-3">
             {getHeading()}
           </h1>
-          {filteredVideos.length > 0 ? (
+          {renderedFilteredItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-              {filteredVideos.map((video) => (
-                <VideoCard key={video.slug} video={video} views={getViews(video.slug)} />
-              ))}
+              {renderedFilteredItems}
             </div>
           ) : (
             <div className="text-center py-16">
@@ -178,14 +206,14 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
           {loading ? (
             categories.map(category => (
               <section key={`skeleton-cat-${category}`}>
-                <h2 className="text-2xl font-bold text-white mb-4 border-l-4 border-lime-400 pl-4">{category}</h2>
-                {renderSkeletons(categorizedVideos[category].length)}
+                <h2 className={`text-2xl font-bold text-white mb-4 border-l-4 ${categoryColors[category] || 'border-gray-400'} pl-4`}>{category}</h2>
+                {renderSkeletons(categorizedVideos[category]?.length || 3)}
               </section>
             ))
           ) : (
             categories.map(category => (
               <section key={category}>
-                <h2 className="text-2xl font-bold text-white mb-4 border-l-4 border-lime-400 pl-4">{category}</h2>
+                <h2 className={`text-2xl font-bold text-white mb-4 border-l-4 ${categoryColors[category] || 'border-gray-400'} pl-4`}>{category}</h2>
                 <div className="flex overflow-x-auto space-x-6 pb-4 -mx-4 px-4 horizontal-scroll">
                   {categorizedVideos[category].map(video => (
                     <div className="flex-shrink-0 w-72 sm:w-80" key={`${category}-${video.slug}`}>

@@ -1,6 +1,5 @@
-import { Video } from '../../types';
 
-export const videos: Omit<Video, 'category'>[] = [
+export default [
   {
     slug: 'building-a-rest-api-with-nodejs',
     title: 'Building a REST API with Node.js & Express',

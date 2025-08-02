@@ -1,6 +1,5 @@
-import { Video } from '../../types';
 
-export const videos: Omit<Video, 'category'>[] = [
+export default [
     {
       slug: 'mastering-the-gemini-api',
       title: 'Mastering the Gemini API with React',
