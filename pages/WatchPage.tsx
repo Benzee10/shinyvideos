@@ -167,7 +167,7 @@ const WatchPage: React.FC = () => {
                   <h3 className="text-md font-semibold text-white group-hover:text-lime-300 transition-colors duration-200 line-clamp-2">{relatedVideo.title}</h3>
                   <p className="text-sm text-gray-400 line-clamp-1">{relatedVideo.category}</p>
                 </div>
-              </a >
+              </Link>
             ))}
           </div>
         </div>
