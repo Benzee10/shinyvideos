@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getVideoBySlug, getAllVideos } from '../lib/videos';
@@ -127,20 +128,33 @@ const WatchPage: React.FC = () => {
     );
   }
 
+  const isMp4 = video.videoUrl.toLowerCase().endsWith('.mp4');
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
         <div className="lg:w-2/3">
           <div className="aspect-w-16 aspect-h-9 mb-4 bg-black rounded-lg overflow-hidden shadow-2xl shadow-cyan-500/10">
-            <iframe
-              src={video.videoUrl}
-              title={video.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-            ></iframe>
+            {isMp4 ? (
+              <video
+                src={video.videoUrl}
+                controls
+                poster={video.thumbnail}
+                className="w-full h-full"
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <iframe
+                src={video.videoUrl}
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            )}
           </div>
           
           {/* Ad Banner Below Video */}

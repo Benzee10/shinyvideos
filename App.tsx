@@ -18,7 +18,7 @@ function App() {
             <div className="flex items-center justify-between h-16">
               <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-white hover:text-cyan-400 transition-colors duration-300">
                 <FilmIcon className="h-8 w-8 text-cyan-400" />
-                <span>VideoTube</span>
+                <span>Shiny Videos</span>
               </Link>
 
               <div className="flex items-center gap-4">

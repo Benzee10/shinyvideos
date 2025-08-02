@@ -107,7 +107,7 @@ const AddVideoPage: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                           <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-300 mb-2">Video Embed URL</label>
+                           <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-300 mb-2">Video URL (.mp4 or Embed)</label>
                            <input
                                type="url"
                                id="videoUrl"
@@ -115,7 +115,7 @@ const AddVideoPage: React.FC = () => {
                                value={videoDetails.videoUrl}
                                onChange={handleInputChange}
                                required
-                               placeholder="https://www.youtube.com/embed/..."
+                               placeholder="https://.../video.mp4 or https://.../embed/..."
                                className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                            />
                         </div>
