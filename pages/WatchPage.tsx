@@ -9,10 +9,10 @@ import { trackView, getViews } from '../lib/analytics';
 import AdBanner from '../components/AdBanner';
 
 const WatchPageSkeleton = () => (
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+  <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Main Content Skeleton */}
-      <div className="lg:w-2/3">
+      <div className="lg:w-3/4">
         <div className="aspect-w-16 aspect-h-9 mb-4 bg-gray-700 rounded-lg"></div>
         <div className="h-8 w-3/4 bg-gray-700 rounded mb-4"></div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4">
@@ -36,7 +36,7 @@ const WatchPageSkeleton = () => (
       </div>
 
       {/* Sidebar Skeleton */}
-      <div className="lg:w-1/3">
+      <div className="lg:w-1/4">
         <div className="h-8 w-32 mb-4 bg-gray-700 rounded"></div>
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
@@ -131,10 +131,10 @@ const WatchPage: React.FC = () => {
   const isMp4 = video.videoUrl.toLowerCase().endsWith('.mp4');
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
-        <div className="lg:w-2/3">
+        <div className="lg:w-3/4">
           <div className="aspect-w-16 aspect-h-9 mb-4 bg-black rounded-lg overflow-hidden shadow-2xl shadow-cyan-500/10">
             {isMp4 ? (
               <video
@@ -197,7 +197,7 @@ const WatchPage: React.FC = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="lg:w-1/3">
+        <div className="lg:w-1/4">
           <h2 className="text-2xl font-bold text-white mb-4 border-l-4 border-lime-400 pl-4">Up Next</h2>
           <div className="space-y-4">
             {upNextItems}
