@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { HashRouter, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import WatchPage from './pages/WatchPage';
+import AddVideoPage from './pages/AddVideoPage';
 import { FilmIcon, SearchIcon } from './components/Icons';
+import StickyWidget from './components/StickyWidget';
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,19 +21,21 @@ function App() {
                 <span>VideoTube</span>
               </Link>
 
-              {/* Search Bar */}
-              <div className="relative flex-grow max-w-xs ml-4">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <SearchIcon className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                      type="text"
-                      placeholder="Search videos..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-gray-800/60 border border-gray-700 rounded-lg py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
-                      aria-label="Search videos"
-                  />
+              <div className="flex items-center gap-4">
+                {/* Search Bar */}
+                <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <SearchIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search videos..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-48 sm:w-64 bg-gray-800/60 border border-gray-700 rounded-lg py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+                        aria-label="Search videos"
+                    />
+                </div>
               </div>
             </div>
           </nav>
@@ -40,8 +44,10 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
             <Route path="/video/:slug" element={<WatchPage />} />
+            <Route path="/add" element={<AddVideoPage />} />
           </Routes>
         </main>
+        <StickyWidget />
       </div>
     </HashRouter>
   );
