@@ -1,18 +1,10 @@
 
 import { Video } from '../types';
 
-import tutorialVideos from './data/tutorials';
-import deepDiveVideos from './data/deep-dives';
-import conceptVideos from './data/concepts';
-import toolsAndTechVideos from './data/tools-and-tech';
 import melissaStrattonVideos from './data/melissa-stratton';
 import sashaEVideos from './data/sasha-e';
 
 const staticVideoData: Record<string, Omit<Video, 'category'>[]> = {
-  'Tutorials': tutorialVideos,
-  'Deep Dives': deepDiveVideos,
-  'Concepts': conceptVideos,
-  'Tools & Tech': toolsAndTechVideos,
   'Sasha E': sashaEVideos,
   'Melissa Stratton': melissaStrattonVideos,
 };
