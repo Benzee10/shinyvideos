@@ -3,10 +3,12 @@ import { Video } from '../types';
 
 import melissaStrattonVideos from './data/melissa-stratton';
 import sashaEVideos from './data/sasha-e';
+import nikoletaVideos from './data/nikoleta';
 
 const staticVideoData: Record<string, Omit<Video, 'category'>[]> = {
   'Sasha E': sashaEVideos,
   'Melissa Stratton': melissaStrattonVideos,
+  'Nikoleta': nikoletaVideos,
 };
 
 const addCategoryToVideo = (video: Omit<Video, 'category'>, category: string): Video => ({
