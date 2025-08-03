@@ -29,5 +29,20 @@ export default [
         "Playboy Plus"
     ],
     "description": "."
+}, 
+{
+    "slug": "smoking-hot-babe-lays-bare-her-seductive-fake-knockers-while-suggestively-stripping-down-her-swimsuit-and-assuming-sultry-stances-near-the-swimming-area",
+    "title": "Smoking-hot babe lays bare her seductive fake knockers while suggestively stripping down her swimsuit and assuming sultry stances near the swimming area.",
+    "uploadDate": "2025-08-03",
+    "thumbnail": "https://i.postimg.cc/y8fXCTsG/c015c45c10a2af27d598ceef85ab5b2f-mp4-7-1280.jpg",
+    "videoUrl": "https://www.xerotica.com/embed/55395",
+    "duration": "05:53",
+    "tags": [
+        "Melissa Stratton",
+        "Playboy Plus",
+        "High Heels",
+        "Bikini"
+    ],
+    "description": "."
 }
 ];
