@@ -14,4 +14,20 @@ export default [
     ],
     "description": "."
 }
+{
+    "slug": "gorgeous-blonde-sex-symbol-melissa-stratton-is-absolutely-smokin-hot-as-she-sashays-around-her-bathtub-flaunting-her-insanely-alluring-lithe-figure-while-showing-those-massive-mouth-watering-real-deal-melons",
+    "title": "Gorgeous blonde sex symbol Melissa Stratton is absolutely smokin' hot as she sashays around her bathtub, flaunting her insanely alluring lithe figure while showing those massive, mouth-watering, real-deal melons.",
+    "uploadDate": "2025-08-03",
+    "thumbnail": "https://i.postimg.cc/cHLKcpVk/7306a9d061347ea70c2273171edc80a6-mp4-2-1280.jpg",
+    "videoUrl": "https://www.xerotica.com/embed/55735",
+    "duration": "06:00",
+    "tags": [
+        "Melissa Stratton",
+        "Big Boobs",
+        "Wet",
+        "Brunette",
+        "Playboy Plus"
+    ],
+    "description": "."
+}
 ];
