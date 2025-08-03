@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { XIcon } from './Icons';
 
 const WIDGET_CLOSED_KEY = 'affiliateWidgetClosed';
+const WIDGET_SCRIPT_ID = 'sticky-widget-ad-script';
 
 const StickyWidget: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -17,6 +18,39 @@ const StickyWidget: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  useEffect(() => {
+    // When the widget becomes visible, inject the ad script.
+    // When it's hidden or unmounts, clean up the script.
+    if (isVisible) {
+      // Prevent adding the script if it already exists
+      if (document.getElementById(WIDGET_SCRIPT_ID)) {
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = WIDGET_SCRIPT_ID;
+      script.async = true;
+      script.dataset.cfasync = 'false';
+      script.src = '//hasteninto.com/250e245cdac94a542844825eb95939b0/invoke.js';
+      
+      document.body.appendChild(script);
+
+      return () => {
+        const adScript = document.getElementById(WIDGET_SCRIPT_ID);
+        if (adScript) {
+          adScript.remove();
+        }
+        
+        // The ad script might populate the container. It's good practice to clear it on cleanup.
+        const adContainer = document.getElementById('container-250e245cdac94a542844825eb95939b0');
+        if (adContainer) {
+            adContainer.innerHTML = '';
+        }
+      };
+    }
+  }, [isVisible]);
+
 
   const handleClose = () => {
     setIsVisible(false);
@@ -37,22 +71,8 @@ const StickyWidget: React.FC = () => {
         >
           <XIcon className="w-5 h-5" />
         </button>
-        <div className="text-center">
-          {/* === PASTE YOUR AFFILIATE SMART LINK WIDGET/CODE HERE === */}
-          <h4 className="font-bold text-lg text-cyan-300 mb-2">Special Offer!</h4>
-          <p className="text-gray-300 text-sm mb-3">
-            Check out this exclusive deal from our affiliate partner.
-          </p>
-          <a
-            href="#" // TODO: Replace with your affiliate link
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
-          >
-            Learn More
-          </a>
-          {/* ======================================================== */}
-        </div>
+        {/* The ad script will find this div by its ID and inject the ad content */}
+        <div id="container-250e245cdac94a542844825eb95939b0"></div>
       </div>
     </div>
   );
