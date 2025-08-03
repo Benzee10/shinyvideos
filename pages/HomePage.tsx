@@ -18,6 +18,7 @@ const categoryColors: Record<string, string> = {
   'Nikoleta': 'border-indigo-50',
 };
 
+
 const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
   const [loading, setLoading] = useState(true);
   const allVideos = useMemo(() => getAllVideos(), []);
@@ -97,7 +98,7 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
         items.push(<VideoCard key={video.slug} video={video} views={getViews(video.slug)} />);
         // Insert an ad after the 4th video, then every 8 videos after that.
         if (index === 3 || (index > 3 && (index - 3) % 8 === 0)) {
-            items.push(<AdBanner key={`ad-${index}`} type="card" />);
+            items.push(<AdBanner key={`ad-${index}`} placement="home-card" />);
         }
     });
     return items;
@@ -134,7 +135,7 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
       {/* Ad Banner */}
       {!isFiltered && !loading && (
         <div className="mb-12">
-          <AdBanner type="banner" />
+          <AdBanner placement="home-banner" />
         </div>
       )}
 
