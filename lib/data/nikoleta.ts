@@ -13,5 +13,21 @@ export default [
         "Femjoy"
     ],
     "description": "."
+},
+{
+    "slug": "beautiful-hottie-nikoletta-poses-nude-in-squeaky-clean",
+    "title": "Beautiful hottie Nikoletta poses nude in Squeaky Clean",
+    "uploadDate": "2025-08-03",
+    "thumbnail": "https://i.postimg.cc/brt3zVqg/85977f3588852f775ecfd7eaec269dea-mp4-4-1280.jpg",
+    "videoUrl": "https://www.xerotica.com/embed/54567",
+    "duration": "05:57",
+    "tags": [
+        "Nikoleta",
+        "Wet",
+        "Blonde",
+        "Masturbation",
+        "Nubiles"
+    ],
+    "description": "."
 }
 ];
