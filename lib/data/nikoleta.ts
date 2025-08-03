@@ -44,6 +44,24 @@ export default [
         "Straplez"
     ],
     "description": "."
+},
+
+{
+    "slug": "magnetic-blonde-nikoleta-bangs-her-dazzling-girlfriend-catalina-monte-with-a-strap-on-humping-like-a-wild-animal",
+    "title": "Magnetic blonde Nikoleta bangs her dazzling girlfriend Catalina Monte with a strap-on, humping like a wild animal.",
+    "uploadDate": "2025-08-03",
+    "thumbnail": "https://i.postimg.cc/gJvxm3fR/504eff86267991eeb6fadf65f3c9df15-mp4-5-1280.jpg",
+    "videoUrl": "https://www.xerotica.com/embed/58186",
+    "duration": "03:58",
+    "tags": [
+        "Nikoleta",
+        "Catalina Monte",
+        "Black Hair",
+        "Straplez",
+        "Lesbian",
+        "Blonde"
+    ],
+    "description": "."
 }
 
 
