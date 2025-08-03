@@ -24,7 +24,7 @@ const StickyWidget: React.FC = () => {
   
   // NOTE TO DEVELOPER: This is where you place your ad details.
   // Replace the placeholder values below with your actual ad content.
-  const SMART_LINK_URL = 'https://your-smart-link-goes-here.com'; // <-- PLACE YOUR SMART LINK/AFFILIATE URL HERE
+  const SMART_LINK_URL = 'https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/'; // <-- PLACE YOUR SMART LINK/AFFILIATE URL HERE
   const AD_VIDEO_URL = 'https://videos.pexels.com/video-files/2759484/2759484-sd_640_360_30fps.mp4'; // <-- PLACE YOUR VIDEO AD URL HERE (.mp4, .webm, etc.)
   const AD_POSTER_URL = 'https://images.pexels.com/videos/2759484/pexels-photo-2759484.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'; // <-- PLACE A POSTER/FALLBACK IMAGE URL HERE
 
