@@ -22,8 +22,16 @@ const StickyWidget: React.FC = () => {
     return null;
   }
   
-  // TODO: Replace this with your actual smart link
-  const SMART_LINK_URL = 'https://your-smart-link-here.com';
+  // NOTE TO DEVELOPER: This is where you place your ad details.
+  // Replace the placeholder values below with your actual ad content.
+  const SMART_LINK_URL = 'https://your-smart-link-goes-here.com'; // <-- PLACE YOUR SMART LINK/AFFILIATE URL HERE
+  const AD_VIDEO_URL = 'https://videos.pexels.com/video-files/2759484/2759484-sd_640_360_30fps.mp4'; // <-- PLACE YOUR VIDEO AD URL HERE (.mp4, .webm, etc.)
+  const AD_POSTER_URL = 'https://images.pexels.com/videos/2759484/pexels-photo-2759484.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'; // <-- PLACE A POSTER/FALLBACK IMAGE URL HERE
+
+  // Don't render the ad if no video URL is provided.
+  if (!AD_VIDEO_URL) {
+      return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
@@ -41,17 +49,19 @@ const StickyWidget: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full h-full"
-          aria-label="Promotional advertisement"
+          aria-label="Promotional video advertisement"
         >
           <video
-            src="https://assets.mixkit.co/videos/preview/mixkit-a-girl-in-a-leather-jacket-with-a-red-light-behind-her-4007-small.mp4"
-            poster="https://i.postimg.cc/x1tbV43c/341bd6e23da75fcc2275ea802a920007-mp4-8-1280.jpg"
-            autoPlay
-            loop
-            muted
-            playsInline
+            src={AD_VIDEO_URL}
+            poster={AD_POSTER_URL}
             className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110"
-          />
+            autoPlay
+            muted
+            loop
+            playsInline // Important for mobile browsers
+          >
+            Your browser does not support the video tag.
+          </video>
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col justify-end p-4">
             <h4 className="font-bold text-white text-lg drop-shadow-md">Discover More</h4>
             <p className="text-sm text-gray-200 drop-shadow-md">Click to see our special offer!</p>
