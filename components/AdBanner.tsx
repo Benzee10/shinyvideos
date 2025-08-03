@@ -1,64 +1,45 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
+
+// NOTE TO DEVELOPER: This is where you place your ad link and a default image.
+const SMART_LINK_URL = 'https://your-smart-link-goes-here.com'; // <-- REPLACE WITH YOUR SMART LINK
+const DEFAULT_AD_IMAGE_URL = 'https://i.pinimg.com/originals/4e/7b/56/4e7b56a5350df80d54ec22d682b18e29.gif';
 
 type AdBannerProps = {
   type: 'banner' | 'sidebar' | 'card';
   className?: string;
+  imageUrl?: string; // Optional prop for custom image
 };
 
-const AdBanner: React.FC<AdBannerProps> = ({ type, className = '' }) => {
-  const adContainerRef = useRef<HTMLDivElement>(null);
-
-  const baseClasses = "bg-gray-800/20 rounded-lg border-2 border-dashed border-gray-700 text-gray-500";
+const AdBanner: React.FC<AdBannerProps> = ({ type, className = '', imageUrl = DEFAULT_AD_IMAGE_URL }) => {
+  // Base styling for the ad container.
+  const baseClasses = "bg-gray-800/20 rounded-lg overflow-hidden";
   
+  // Specific styling for each ad type to control dimensions.
   const typeClasses = {
-    banner: 'min-h-[90px] w-full flex items-center justify-center overflow-hidden',
-    sidebar: 'flex items-center justify-center min-h-[90px] w-full',
-    card: 'flex items-center justify-center aspect-video w-full'
+    banner: 'min-h-[90px] w-full',
+    sidebar: 'min-h-[90px] w-full',
+    card: 'aspect-video w-full'
   };
-
-  const textClasses = {
-      banner: 'text-lg',
-      sidebar: 'text-md',
-      card: 'text-md'
-  }
-
-  useEffect(() => {
-    // We only want to apply the ad script to banners, and only once per mount.
-    if (type === 'banner' && adContainerRef.current && adContainerRef.current.childElementCount === 0) {
-      
-      const configScript = document.createElement('script');
-      configScript.type = 'text/javascript';
-      // Using innerHTML is fine here as we control the string content.
-      configScript.innerHTML = `
-        atOptions = {
-          'key' : '21fc2a87277a3f1a11b4bae6ebe8e4ae',
-          'format' : 'iframe',
-          'height' : 90,
-          'width' : 728,
-          'params' : {}
-        };
-      `;
-
-      const adScript = document.createElement('script');
-      adScript.type = 'text/javascript';
-      adScript.src = '//hasteninto.com/21fc2a87277a3f1a11b4bae6ebe8e4ae/invoke.js';
-      
-      adContainerRef.current.appendChild(configScript);
-      adContainerRef.current.appendChild(adScript);
-    }
-  }, [type]);
 
   return (
     <div
-      ref={adContainerRef}
       className={`${baseClasses} ${typeClasses[type]} ${className}`}
-      // Add a key that changes with type to ensure React re-mounts the component
-      // when the ad type changes, which is important for the useEffect logic.
-      key={type} 
+      // Add imageUrl to key to ensure React re-mounts the component if the image changes
+      key={`${type}-${imageUrl}`} 
     >
-      {type !== 'banner' && (
-        <span className={`font-semibold ${textClasses[type]}`}>Advertisement</span>
-      )}
+      <a
+        href={SMART_LINK_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Advertisement"
+        className="block w-full h-full"
+      >
+        <img
+          src={imageUrl}
+          alt="Advertisement"
+          className="w-full h-full object-cover"
+        />
+      </a>
     </div>
   );
 };
