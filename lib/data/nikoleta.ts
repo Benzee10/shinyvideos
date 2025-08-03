@@ -14,6 +14,26 @@ export default [
     ],
     "description": "."
 },
+
+{
+    "slug": "the-hot-as-hell-chicks-get-down-together-on-the-couch-exposing-their-lovely-bodies-and-having-sensual-lesbian-sex",
+    "title": "The hot-as-hell chicks get down together on the couch exposing their lovely bodies and having sensual lesbian sex",
+    "uploadDate": "2025-08-03",
+    "thumbnail": "https://i.postimg.cc/RF9M1yD6/359a46cab7ff42950d4375ea0f39c065-mp4-6-1280.jpg",
+    "videoUrl": "https://www.xerotica.com/embed/55985",
+    "duration": "04:00",
+    "tags": [
+        "Nikoleta",
+        "Mirka",
+        "Lesbian",
+        "Club Sweethearts",
+        "Brunette",
+        "Big Boobs"
+    ],
+    "description": "."
+},
+
+
 {
     "slug": "beautiful-hottie-nikoletta-poses-nude-in-squeaky-clean",
     "title": "Beautiful hottie Nikoletta poses nude in Squeaky Clean",
