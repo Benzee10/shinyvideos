@@ -8,8 +8,6 @@ import { ClockIcon, EyeIcon, FolderIcon } from '../components/Icons';
 import { trackView, getViews } from '../lib/analytics';
 import AdBanner from '../components/AdBanner';
 
-const BOTTOM_AD_URL = "https://media.tenor.com/yyYPqL6fagUAAAAM/coca-cola-commercial.gif";
-
 const WatchPageSkeleton = () => (
   <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
     <div className="flex flex-col lg:flex-row gap-8">
@@ -114,7 +112,7 @@ const WatchPage: React.FC = () => {
 
     // Insert an ad at position 2 (index 1) if there are enough videos
     if (items.length > 1) {
-      items.splice(1, 0, <AdBanner key="sidebar-ad" type="sidebar" />);
+      items.splice(1, 0, <AdBanner key="sidebar-ad" placement="watch-sidebar" />);
     }
 
     return items;
@@ -141,7 +139,7 @@ const WatchPage: React.FC = () => {
         <div className="lg:w-3/4">
           {/* Ad Banner Above Video */}
           <div className="mb-4">
-            <AdBanner type="banner" />
+            <AdBanner placement="watch-top-banner" />
           </div>
 
           <div className="aspect-video mb-4 bg-black rounded-lg overflow-hidden shadow-2xl shadow-cyan-500/10">
@@ -168,7 +166,7 @@ const WatchPage: React.FC = () => {
           
           {/* Ad Banner Below Video */}
           <div className="my-6">
-            <AdBanner type="banner" imageUrl={BOTTOM_AD_URL} />
+            <AdBanner placement="watch-bottom-banner" />
           </div>
 
           <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-3">{video.title}</h1>
