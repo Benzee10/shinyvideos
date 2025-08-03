@@ -13,7 +13,7 @@ export default [
         "Playboy Plus"
     ],
     "description": "."
-}
+},
 {
     "slug": "gorgeous-blonde-sex-symbol-melissa-stratton-is-absolutely-smokin-hot-as-she-sashays-around-her-bathtub-flaunting-her-insanely-alluring-lithe-figure-while-showing-those-massive-mouth-watering-real-deal-melons",
     "title": "Gorgeous blonde sex symbol Melissa Stratton is absolutely smokin' hot as she sashays around her bathtub, flaunting her insanely alluring lithe figure while showing those massive, mouth-watering, real-deal melons.",
