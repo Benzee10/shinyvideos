@@ -1,3 +1,4 @@
+export default [
 {
     "slug": "blonde-babe-nikoletta-is-lookin-fine-as-she-strips-down-showin-off-her-hot-bod-slowly-she-moves-south-to-her-privates-and-gets-to-work-rubbin-her-juicy-bud-with-intense-vigor",
     "title": "Blonde babe Nikoletta is lookin' fine as she strips down, showin' off her hot bod. Slowly, she moves south to her privates and gets to work, rubbin' her juicy bud with intense vigor.",
@@ -13,3 +14,4 @@
     ],
     "description": "."
 }
+];
