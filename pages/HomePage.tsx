@@ -18,7 +18,6 @@ const categoryColors: Record<string, string> = {
   'Concepts': 'border-amber-400',
   'Tools & Tech': 'border-indigo-400',
   'Sasha E': 'border-red-400',
-  'Melissa Stratton': 'border-purple-400',
 };
 
 const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
