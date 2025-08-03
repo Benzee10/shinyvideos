@@ -13,10 +13,6 @@ interface HomePageProps {
 }
 
 const categoryColors: Record<string, string> = {
-  'Tutorials': 'border-lime-400',
-  'Deep Dives': 'border-sky-400',
-  'Concepts': 'border-amber-400',
-  'Tools & Tech': 'border-indigo-400',
   'Sasha E': 'border-red-400',
   'Melissa Stratton': 'border-green-400',
 };
