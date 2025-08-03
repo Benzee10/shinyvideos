@@ -29,9 +29,27 @@ const AdBanner: React.FC<AdBannerProps> = ({ type, className = '' }) => {
 
   return (
     <div className={`${baseClasses} ${typeClasses[type]} ${className}`}>
-      {/* === PASTE YOUR AD CODE HERE === */}
+      {<script type="text/javascript">
+	atOptions = {
+		'key' : '21fc2a87277a3f1a11b4bae6ebe8e4ae',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//hasteninto.com/21fc2a87277a3f1a11b4bae6ebe8e4ae/invoke.js"></script>}
       <span className={`font-semibold ${textClasses[type]}`}>Advertisement</span>
-       {/* ============================== */}
+       {<script type="text/javascript">
+	atOptions = {
+		'key' : '21fc2a87277a3f1a11b4bae6ebe8e4ae',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//hasteninto.com/21fc2a87277a3f1a11b4bae6ebe8e4ae/invoke.js"></script>}
     </div>
   );
 };
