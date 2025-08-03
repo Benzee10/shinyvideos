@@ -14,7 +14,7 @@ const staticVideoData: Record<string, Omit<Video, 'category'>[]> = {
   'Concepts': conceptVideos,
   'Tools & Tech': toolsAndTechVideos,
   'Sasha E': sashaEVideos,
-  'User Uploads': userUploadVideos,
+  'Melissa Stratton': melissaStrattonVideos,
 };
 
 const addCategoryToVideo = (video: Omit<Video, 'category'>, category: string): Video => ({
