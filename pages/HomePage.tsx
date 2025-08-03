@@ -15,6 +15,7 @@ interface HomePageProps {
 const categoryColors: Record<string, string> = {
   'Sasha E': 'border-red-400',
   'Melissa Stratton': 'border-green-400',
+  'Nikoleta': 'border-indigo-50',
 };
 
 const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
