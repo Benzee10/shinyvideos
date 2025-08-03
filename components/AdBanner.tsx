@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type AdBannerProps = {
   type: 'banner' | 'sidebar' | 'card';
@@ -6,12 +6,14 @@ type AdBannerProps = {
 };
 
 const AdBanner: React.FC<AdBannerProps> = ({ type, className = '' }) => {
-  const baseClasses = "flex items-center justify-center bg-gray-800/20 rounded-lg border-2 border-dashed border-gray-700 text-gray-500";
+  const adContainerRef = useRef<HTMLDivElement>(null);
+
+  const baseClasses = "bg-gray-800/20 rounded-lg border-2 border-dashed border-gray-700 text-gray-500";
   
   const typeClasses = {
-    banner: 'min-h-[90px] w-full',
-    sidebar: 'min-h-[90px] w-full',
-    card: 'aspect-video w-full'
+    banner: 'min-h-[90px] w-full flex items-center justify-center overflow-hidden',
+    sidebar: 'flex items-center justify-center min-h-[90px] w-full',
+    card: 'flex items-center justify-center aspect-video w-full'
   };
 
   const textClasses = {
@@ -20,36 +22,43 @@ const AdBanner: React.FC<AdBannerProps> = ({ type, className = '' }) => {
       card: 'text-md'
   }
 
-  // To implement ads, you can either:
-  // 1. Paste your ad code (like a script tag) directly inside the div below.
-  //
-  // 2. Or, for more complex script-based ads that need to be dynamically loaded,
-  //    you can use a React effect (useEffect hook) to append the script to the DOM.
-  //    This is a safer approach for many ad networks to avoid issues with React's rendering lifecycle.
+  useEffect(() => {
+    // We only want to apply the ad script to banners, and only once per mount.
+    if (type === 'banner' && adContainerRef.current && adContainerRef.current.childElementCount === 0) {
+      
+      const configScript = document.createElement('script');
+      configScript.type = 'text/javascript';
+      // Using innerHTML is fine here as we control the string content.
+      configScript.innerHTML = `
+        atOptions = {
+          'key' : '21fc2a87277a3f1a11b4bae6ebe8e4ae',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      `;
+
+      const adScript = document.createElement('script');
+      adScript.type = 'text/javascript';
+      adScript.src = '//hasteninto.com/21fc2a87277a3f1a11b4bae6ebe8e4ae/invoke.js';
+      
+      adContainerRef.current.appendChild(configScript);
+      adContainerRef.current.appendChild(adScript);
+    }
+  }, [type]);
 
   return (
-    <div className={`${baseClasses} ${typeClasses[type]} ${className}`}>
-      {<script type="text/javascript">
-	atOptions = {
-		'key' : '21fc2a87277a3f1a11b4bae6ebe8e4ae',
-		'format' : 'iframe',
-		'height' : 90,
-		'width' : 728,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//hasteninto.com/21fc2a87277a3f1a11b4bae6ebe8e4ae/invoke.js"></script>}
-      <span className={`font-semibold ${textClasses[type]}`}>Advertisement</span>
-       {<script type="text/javascript">
-	atOptions = {
-		'key' : '21fc2a87277a3f1a11b4bae6ebe8e4ae',
-		'format' : 'iframe',
-		'height' : 90,
-		'width' : 728,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//hasteninto.com/21fc2a87277a3f1a11b4bae6ebe8e4ae/invoke.js"></script>}
+    <div
+      ref={adContainerRef}
+      className={`${baseClasses} ${typeClasses[type]} ${className}`}
+      // Add a key that changes with type to ensure React re-mounts the component
+      // when the ad type changes, which is important for the useEffect logic.
+      key={type} 
+    >
+      {type !== 'banner' && (
+        <span className={`font-semibold ${textClasses[type]}`}>Advertisement</span>
+      )}
     </div>
   );
 };
