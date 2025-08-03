@@ -1,78 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { XIcon } from './Icons';
 
-const WIDGET_CLOSED_KEY = 'affiliateWidgetClosed';
-const WIDGET_SCRIPT_ID = 'sticky-widget-ad-script';
-
 const StickyWidget: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    // Check if the widget was closed during this session
-    const isClosed = sessionStorage.getItem(WIDGET_CLOSED_KEY);
-    if (!isClosed) {
-      // Use a timeout to delay the widget's appearance, making it less intrusive
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 3000); // Appear after 3 seconds
-      return () => clearTimeout(timer);
-    }
+    // Show the widget after a short delay to not be too intrusive on page load.
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 2500); // Appear after 2.5 seconds
+
+    return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    // When the widget becomes visible, inject the ad script.
-    // When it's hidden or unmounts, clean up the script.
-    if (isVisible) {
-      // Prevent adding the script if it already exists
-      if (document.getElementById(WIDGET_SCRIPT_ID)) {
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.id = WIDGET_SCRIPT_ID;
-      script.async = true;
-      script.dataset.cfasync = 'false';
-      script.src = '//hasteninto.com/250e245cdac94a542844825eb95939b0/invoke.js';
-      
-      document.body.appendChild(script);
-
-      return () => {
-        const adScript = document.getElementById(WIDGET_SCRIPT_ID);
-        if (adScript) {
-          adScript.remove();
-        }
-        
-        // The ad script might populate the container. It's good practice to clear it on cleanup.
-        const adContainer = document.getElementById('container-250e245cdac94a542844825eb95939b0');
-        if (adContainer) {
-            adContainer.innerHTML = '';
-        }
-      };
-    }
-  }, [isVisible]);
-
-
-  const handleClose = () => {
-    setIsVisible(false);
-    sessionStorage.setItem(WIDGET_CLOSED_KEY, 'true');
+  const handleDismiss = () => {
+    setIsDismissed(true);
   };
 
-  if (!isVisible) {
+  if (isDismissed || !isVisible) {
     return null;
   }
+  
+  // TODO: Replace this with your actual smart link
+  const SMART_LINK_URL = 'https://your-smart-link-here.com';
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 max-w-[90vw] bg-gray-800 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/10 transform transition-all duration-500 animate-slide-in-right">
-      <div className="relative p-4">
+    <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
+      <div className="relative group w-72 h-48 bg-gray-900 rounded-lg shadow-2xl shadow-cyan-500/10 overflow-hidden border border-cyan-500/30">
         <button
-          onClick={handleClose}
-          className="absolute -top-2 -right-2 p-1 bg-gray-700 hover:bg-red-500 rounded-full text-white transition-colors"
-          aria-label="Close widget"
+          onClick={handleDismiss}
+          className="absolute top-2 right-2 text-gray-300 hover:text-white transition-colors z-20 p-1.5 rounded-full bg-black/40 hover:bg-black/60"
+          aria-label="Dismiss"
         >
           <XIcon className="w-5 h-5" />
         </button>
-        {/* The ad script will find this div by its ID and inject the ad content */}
-        <div id="container-250e245cdac94a542844825eb95939b0"></div>
+
+        <a
+          href={SMART_LINK_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full h-full"
+          aria-label="Promotional advertisement"
+        >
+          <video
+            src="https://assets.mixkit.co/videos/preview/mixkit-a-girl-in-a-leather-jacket-with-a-red-light-behind-her-4007-small.mp4"
+            poster="https://i.postimg.cc/x1tbV43c/341bd6e23da75fcc2275ea802a920007-mp4-8-1280.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col justify-end p-4">
+            <h4 className="font-bold text-white text-lg drop-shadow-md">Discover More</h4>
+            <p className="text-sm text-gray-200 drop-shadow-md">Click to see our special offer!</p>
+          </div>
+        </a>
       </div>
     </div>
   );
