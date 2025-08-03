@@ -15,4 +15,4 @@ export default [
     ],
     "description": "The Life Erotic"
 }
-]
+];
