@@ -8,6 +8,8 @@ import { ClockIcon, EyeIcon, FolderIcon } from '../components/Icons';
 import { trackView, getViews } from '../lib/analytics';
 import AdBanner from '../components/AdBanner';
 
+const BOTTOM_AD_URL = "https://media.tenor.com/yyYPqL6fagUAAAAM/coca-cola-commercial.gif";
+
 const WatchPageSkeleton = () => (
   <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
     <div className="flex flex-col lg:flex-row gap-8">
@@ -166,7 +168,7 @@ const WatchPage: React.FC = () => {
           
           {/* Ad Banner Below Video */}
           <div className="my-6">
-            <AdBanner type="banner" />
+            <AdBanner type="banner" imageUrl={BOTTOM_AD_URL} />
           </div>
 
           <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-3">{video.title}</h1>
