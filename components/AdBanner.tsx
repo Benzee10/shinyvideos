@@ -1,7 +1,7 @@
 import React from 'react';
 
 // NOTE TO DEVELOPER: This is where you place your ad link and a default image.
-const SMART_LINK_URL = 'https://your-smart-link-goes-here.com'; // <-- REPLACE WITH YOUR SMART LINK
+const SMART_LINK_URL = 'https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/'; // <-- REPLACE WITH YOUR SMART LINK
 const DEFAULT_AD_IMAGE_URL = 'https://i.pinimg.com/originals/4e/7b/56/4e7b56a5350df80d54ec22d682b18e29.gif';
 
 type AdBannerProps = {
