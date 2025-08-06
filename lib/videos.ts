@@ -1,5 +1,7 @@
 
 import { Video } from '../types';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 // Helper to create a URL-friendly slug from a string
 const createSlug = (title: string) => {
