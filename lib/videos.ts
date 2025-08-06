@@ -1,7 +1,6 @@
 
+
 import { Video } from '../types';
-import { promises as fs } from 'fs';
-import path from 'path';
 
 // Helper to create a URL-friendly slug from a string
 const createSlug = (title: string) => {
@@ -57,7 +56,7 @@ const parseMarkdownToVideo = (markdown: string): Omit<Video, 'category'> | null 
   }
 };
 
-// Import individual markdown files as strings
+// Import individual markdown files
 const melissaStrattonCulinaryMd = `# Horny housewife showcases her culinary prowess as she simultaneously displays her sexual allure by flaunting her
 
 **Video URL:** https://www.xerotica.com/embed/55571
@@ -130,7 +129,7 @@ const sashaEMd = `# Alluring well-endowed babe strips on the floor exposing her 
 **Tags:** Sasha E, Brunette, Masturbation, Big Boobs, The Life Erotic
 **Description:** The Life Erotic`;
 
-// Individual video data with categories
+// Static video data with categories
 const staticVideoData: Array<{ markdownContent: string; category: string }> = [
   { markdownContent: melissaStrattonCulinaryMd, category: 'Melissa Stratton' },
   { markdownContent: melissaStrattonBathtubMd, category: 'Melissa Stratton' },
@@ -177,3 +176,4 @@ export function getVideosByCategory(): Record<string, Video[]> {
 
   return categories;
 }
+
