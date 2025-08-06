@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Video } from '../types';
 import { CopyIcon } from '../components/Icons';
@@ -14,31 +13,61 @@ const createSlug = (title: string) => {
     .replace(/^-+|-+$/g, ''); // trim leading/trailing hyphens
 };
 
+// Helper to parse markdown format into video object
+const parseMarkdownToVideo = (markdown: string): Omit<Video, 'category'> | null => {
+  try {
+    const lines = markdown.split('\n').map(line => line.trim()).filter(line => line);
+    const videoData: any = {};
+
+    for (const line of lines) {
+      if (line.startsWith('# ')) {
+        videoData.title = line.replace('# ', '');
+        videoData.slug = createSlug(videoData.title);
+      } else if (line.startsWith('**Video URL:**')) {
+        videoData.videoUrl = line.replace('**Video URL:**', '').trim();
+      } else if (line.startsWith('**Thumbnail:**')) {
+        videoData.thumbnail = line.replace('**Thumbnail:**', '').trim();
+      } else if (line.startsWith('**Duration:**')) {
+        videoData.duration = line.replace('**Duration:**', '').trim();
+      } else if (line.startsWith('**Tags:**')) {
+        const tagsStr = line.replace('**Tags:**', '').trim();
+        videoData.tags = tagsStr.split(',').map(tag => tag.trim()).filter(Boolean);
+      } else if (line.startsWith('**Description:**')) {
+        videoData.description = line.replace('**Description:**', '').trim();
+      } else if (!line.startsWith('**') && !line.startsWith('#') && videoData.description === undefined) {
+        // This handles multi-line descriptions correctly if the Description line is present.
+        // If Description line is missing, this will be the first content.
+        videoData.description = line;
+      } else if (videoData.description !== undefined && !line.startsWith('**') && !line.startsWith('#')) {
+          videoData.description += '\n' + line;
+      }
+    }
+
+    // Set upload date to today
+    videoData.uploadDate = new Date().toISOString().split('T')[0];
+
+    // Validate required fields
+    if (!videoData.title || !videoData.videoUrl || !videoData.thumbnail || !videoData.duration) {
+      return null;
+    }
+
+    return videoData;
+  } catch (error) {
+    console.error("Error parsing markdown:", error);
+    return null;
+  }
+};
+
 const AddVideoPage: React.FC = () => {
-    const [videoDetails, setVideoDetails] = useState({
-        title: '',
-        videoUrl: '',
-        thumbnail: '',
-        duration: '',
-        tags: '', // Will be handled as a comma-separated string
-        description: '',
-    });
-    const [slug, setSlug] = useState('');
+    const [markdownInput, setMarkdownInput] = useState('');
     const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
     const [copySuccess, setCopySuccess] = useState(false);
+    const [parseError, setParseError] = useState<string | null>(null);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setVideoDetails(prev => ({ ...prev, [name]: value }));
-
-        if (name === 'title') {
-            setSlug(createSlug(value));
-        }
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setMarkdownInput(e.target.value);
+        setParseError(null);
     };
-    
-    const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSlug(e.target.value);
-    }
 
     const handleCopyToClipboard = () => {
         if (generatedVideo) {
@@ -53,128 +82,59 @@ const AddVideoPage: React.FC = () => {
 
     const handleGenerateCode = (e: React.FormEvent) => {
         e.preventDefault();
+        setParseError(null);
 
-        const newVideoObject: Omit<Video, 'category'> = {
-            slug: slug || createSlug(videoDetails.title),
-            title: videoDetails.title,
-            uploadDate: new Date().toISOString().split('T')[0],
-            thumbnail: videoDetails.thumbnail,
-            videoUrl: videoDetails.videoUrl,
-            duration: videoDetails.duration,
-            tags: videoDetails.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-            description: videoDetails.description,
-        };
+        const parsedVideo = parseMarkdownToVideo(markdownInput);
 
-        setGeneratedVideo(JSON.stringify(newVideoObject, null, 4)); // Using 4 spaces for indentation
+        if (!parsedVideo) {
+            setParseError('Invalid markdown format. Please check the example format below.');
+            return;
+        }
+
+        setGeneratedVideo(JSON.stringify(parsedVideo, null, 4));
     };
+
+    const exampleMarkdown = `# Your Video Title Here
+
+**Video URL:** https://www.example.com/embed/12345
+**Thumbnail:** https://i.postimg.cc/example/thumbnail.jpg
+**Duration:** 05:30
+**Tags:** Tag1, Tag2, Tag3
+**Description:** Your video description goes here.`;
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="max-w-3xl mx-auto bg-gray-800/50 p-8 rounded-xl shadow-lg">
+            <div className="max-w-4xl mx-auto bg-gray-800/50 p-8 rounded-xl shadow-lg">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2 text-center">Video Data Generator</h1>
                 <p className="text-gray-400 mb-8 text-center">
-                    Fill in the details below to generate the video object for your app.
+                    Enter video details in markdown format to generate the video object for your app.
                 </p>
 
                 <form onSubmit={handleGenerateCode} className="space-y-6">
                     <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">Video Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={videoDetails.title}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label htmlFor="slug" className="block text-sm font-medium text-gray-300 mb-2">Slug (URL-friendly identifier)</label>
-                        <input
-                            type="text"
-                            id="slug"
-                            name="slug"
-                            value={slug}
-                            onChange={handleSlugChange}
-                            required
-                            placeholder="auto-generated-from-title"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                         <p className="text-xs text-gray-500 mt-1">Auto-generated from title, but can be overridden.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                           <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-300 mb-2">Video URL (.mp4 or Embed)</label>
-                           <input
-                               type="url"
-                               id="videoUrl"
-                               name="videoUrl"
-                               value={videoDetails.videoUrl}
-                               onChange={handleInputChange}
-                               required
-                               placeholder="https://.../video.mp4 or https://.../embed/..."
-                               className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                           />
-                        </div>
-                        <div>
-                           <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-300 mb-2">Thumbnail Image URL</label>
-                           <input
-                               type="url"
-                               id="thumbnail"
-                               name="thumbnail"
-                               value={videoDetails.thumbnail}
-                               onChange={handleInputChange}
-                               required
-                               placeholder="https://example.com/image.jpg"
-                               className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                           />
-                        </div>
-                    </div>
-
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                           <label htmlFor="duration" className="block text-sm font-medium text-gray-300 mb-2">Duration (e.g., 23:45)</label>
-                           <input
-                               type="text"
-                               id="duration"
-                               name="duration"
-                               value={videoDetails.duration}
-                               onChange={handleInputChange}
-                               required
-                               placeholder="MM:SS"
-                               className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                           />
-                        </div>
-                        <div>
-                           <label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-2">Tags (comma-separated)</label>
-                           <input
-                               type="text"
-                               id="tags"
-                               name="tags"
-                               value={videoDetails.tags}
-                               onChange={handleInputChange}
-                               required
-                               placeholder="Tag1, Tag2, Tag3"
-                               className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                           />
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                        <label htmlFor="markdown" className="block text-sm font-medium text-gray-300 mb-2">
+                            Video Details (Markdown Format)
+                        </label>
                         <textarea
-                            id="description"
-                            name="description"
-                            rows={4}
-                            value={videoDetails.description}
+                            id="markdown"
+                            name="markdown"
+                            rows={12}
+                            value={markdownInput}
                             onChange={handleInputChange}
                             required
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            placeholder={exampleMarkdown}
+                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono text-sm"
                         />
+                        <p className="text-xs text-gray-500 mt-2">
+                            Follow the exact format shown in the placeholder. All fields are required except description can be multi-line.
+                        </p>
                     </div>
+
+                    {parseError && (
+                        <div className="p-4 bg-red-900/30 border border-red-700 rounded-lg">
+                            <p className="text-red-400 text-sm">{parseError}</p>
+                        </div>
+                    )}
 
                     <div className="text-center pt-2">
                         <button
@@ -185,6 +145,16 @@ const AddVideoPage: React.FC = () => {
                         </button>
                     </div>
                 </form>
+
+                <div className="mt-8 p-6 bg-gray-900/30 rounded-lg border border-gray-700">
+                    <h3 className="text-lg font-semibold text-white mb-3">Markdown Format Example:</h3>
+                    <pre className="text-sm text-gray-300 bg-gray-900 p-4 rounded-md overflow-x-auto">
+{exampleMarkdown}
+                    </pre>
+                    <p className="text-xs text-gray-500 mt-2">
+                        Copy this format and replace with your video details. The slug will be auto-generated from the title.
+                    </p>
+                </div>
 
                 {generatedVideo && (
                     <div className="mt-10 p-6 bg-gray-900/50 rounded-lg border border-gray-700">
