@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getVideoBySlug, getAllVideos } from '../lib/videos';
+import { getVideoBySlug, getAllVideos, getAllVideosWithDynamic } from '../lib/videos';
 import { Video } from '../types';
 import Tag from '../components/Tag';
 import { ClockIcon, EyeIcon, FolderIcon } from '../components/Icons';
@@ -106,10 +106,17 @@ const WatchPage: React.FC = () => {
     setLoading(true);
     setVideo(null); // Reset video on slug change
 
-    // Simulate fetch
-    const timer = setTimeout(() => {
+    const loadVideo = async () => {
       if (slug) {
-        const currentVideo = getVideoBySlug(slug);
+        // First try static videos for quick response
+        let currentVideo = getVideoBySlug(slug);
+        
+        // If not found in static, load from dynamic files
+        if (!currentVideo) {
+          const allVideos = await getAllVideosWithDynamic();
+          currentVideo = allVideos.find(v => v.slug === slug);
+        }
+
         if(currentVideo){
           setVideo(currentVideo);
 
@@ -117,7 +124,8 @@ const WatchPage: React.FC = () => {
           trackView(slug);
           setViewCount(getViews(slug));
 
-          const allVideos = getAllVideos();
+          // Load all videos for related suggestions
+          const allVideos = await getAllVideosWithDynamic();
           // Suggest related videos, prioritizing the same category
           const sameCategory = allVideos.filter(v => v.category === currentVideo.category && v.slug !== slug);
           const otherVideos = allVideos.filter(v => v.category !== currentVideo.category && v.slug !== slug);
@@ -126,7 +134,10 @@ const WatchPage: React.FC = () => {
         }
       }
       setLoading(false);
-    }, 1000);
+    };
+
+    // Simulate fetch delay and load video
+    const timer = setTimeout(loadVideo, 1000);
 
     // Scroll to top when slug changes
     window.scrollTo(0, 0);
