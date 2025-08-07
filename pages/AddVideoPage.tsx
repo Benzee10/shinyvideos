@@ -86,11 +86,24 @@ const AddVideoPage: React.FC = () => {
                 category: formData.actress
             };
 
-            // Here you would normally make an API call to save the video
-            // For now, we'll just show the generated content
-            console.log('Markdown content:', markdownContent);
-            console.log('Video object:', videoObject);
-            console.log('File path:', `lib/data/${formData.actress.replace(' ', '-')}/`);
+            // Save the markdown file using Replit Object Storage
+            const fileName = `${slug}.md`;
+            const folderPath = `lib/data/${formData.actress.replace(' ', '-')}/`;
+            
+            try {
+                // Here we would save to Replit Object Storage
+                // For now, we'll create the file content and show success
+                const fullPath = folderPath + fileName;
+                console.log('Saving to:', fullPath);
+                console.log('Markdown content:', markdownContent);
+                console.log('Video object:', videoObject);
+                
+                // TODO: Implement actual file saving with Replit Object Storage
+                // const client = new Client();
+                // await client.upload_from_text(fullPath, markdownContent);
+            } catch (error) {
+                throw new Error('Failed to save video file');
+            }
 
             setSubmitSuccess(true);
             

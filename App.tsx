@@ -1,9 +1,11 @@
-
 import React, { useState } from 'react';
 import { HashRouter, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import WatchPage from './pages/WatchPage';
 import AddVideoPage from './pages/AddVideoPage';
+// Assuming these new pages will be created in the 'pages' directory
+// import ManageVideosPage from './pages/ManageVideosPage';
+// import AnalyticsPage from './pages/AnalyticsPage';
 import { FilmIcon, SearchIcon } from './components/Icons';
 import StickyWidget from './components/StickyWidget';
 
@@ -43,8 +45,11 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
-            <Route path="/video/:slug" element={<WatchPage />} />
-            <Route path="/add" element={<AddVideoPage />} />
+            <Route path="/watch/:slug" element={<WatchPage />} />
+            <Route path="/add-video" element={<AddVideoPage />} />
+            {/* New routes for management and analytics */}
+            {/* <Route path="/manage-videos" element={<ManageVideosPage />} /> */}
+            {/* <Route path="/analytics" element={<AnalyticsPage />} /> */}
           </Routes>
         </main>
         <StickyWidget />
