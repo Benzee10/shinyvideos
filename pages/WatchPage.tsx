@@ -6,6 +6,7 @@ import { Video } from '../types';
 import Tag from '../components/Tag';
 import { ClockIcon, EyeIcon, FolderIcon } from '../components/Icons';
 import { trackView, getViews } from '../lib/analytics';
+import { saveProgress, getProgress, clearProgress } from '../lib/progress';
 import AdBanner from '../components/AdBanner';
 
 const WatchPageSkeleton = () => (
@@ -64,6 +65,43 @@ const WatchPage: React.FC = () => {
   const [relatedVideos, setRelatedVideos] = useState<Video[]>([]);
   const [viewCount, setViewCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const videoElement = document.querySelector('video') as HTMLVideoElement;
+      if (!videoElement) return;
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          if (videoElement.paused) {
+            videoElement.play();
+          } else {
+            videoElement.pause();
+          }
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          videoElement.currentTime = Math.max(0, videoElement.currentTime - 10);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          videoElement.currentTime = Math.min(videoElement.duration, videoElement.currentTime + 10);
+          break;
+        case 'f':
+          e.preventDefault();
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          } else {
+            videoElement.requestFullscreen();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [video]);
 
   useEffect(() => {
     setLoading(true);
@@ -142,13 +180,29 @@ const WatchPage: React.FC = () => {
             <AdBanner placement="watch-top-banner" />
           </div>
 
-          <div className="aspect-video mb-4 bg-black rounded-lg overflow-hidden shadow-2xl shadow-cyan-500/10">
+          <div className="aspect-video mb-4 bg-black rounded-lg overflow-hidden shadow-2xl shadow-cyan-500/10 relative">
             {isMp4 ? (
               <video
                 src={video.videoUrl}
                 controls
                 poster={video.thumbnail}
                 className="w-full h-full"
+                onLoadedMetadata={(e) => {
+                  const progress = getProgress(video.slug);
+                  if (progress && progress.currentTime > 10) {
+                    e.currentTarget.currentTime = progress.currentTime;
+                  }
+                }}
+                onTimeUpdate={(e) => {
+                  const currentTime = e.currentTarget.currentTime;
+                  const duration = e.currentTarget.duration;
+                  if (duration > 0) {
+                    saveProgress(video.slug, currentTime, duration);
+                  }
+                }}
+                onEnded={() => {
+                  clearProgress(video.slug);
+                }}
               >
                 Your browser does not support the video tag.
               </video>
