@@ -45,7 +45,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
-            <Route path="/watch/:slug" element={<WatchPage />} />
+            <Route path="/video/:slug" element={<WatchPage />} />
             <Route path="/add" element={<AddVideoPage />} />
             {/* New routes for management and analytics */}
             {/* <Route path="/manage-videos" element={<ManageVideosPage />} /> */}
