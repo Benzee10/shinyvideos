@@ -91,17 +91,22 @@ const AddVideoPage: React.FC = () => {
             const folderPath = `lib/data/${formData.actress.replace(' ', '-')}/`;
             
             try {
-                // Here we would save to Replit Object Storage
-                // For now, we'll create the file content and show success
+                // Import Replit Object Storage client
+                const { Client } = await import('@replit/object-storage');
+                const client = new Client();
+                
                 const fullPath = folderPath + fileName;
                 console.log('Saving to:', fullPath);
-                console.log('Markdown content:', markdownContent);
-                console.log('Video object:', videoObject);
                 
-                // TODO: Implement actual file saving with Replit Object Storage
-                // const client = new Client();
-                // await client.upload_from_text(fullPath, markdownContent);
+                // Save the markdown file to Object Storage
+                const uploadResult = await client.uploadFromText(fullPath, markdownContent);
+                if (!uploadResult.ok) {
+                    throw new Error(`Failed to save file: ${uploadResult.error?.message || 'Unknown error'}`);
+                }
+                
+                console.log('File saved successfully:', fullPath);
             } catch (error) {
+                console.error('Error saving file:', error);
                 throw new Error('Failed to save video file');
             }
 

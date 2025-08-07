@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getAllVideos, getVideosByCategory } from '../lib/videos';
+import { getAllVideos, getVideosByCategory, getAllVideosWithDynamic, getVideosByCategoryWithDynamic } from '../lib/videos';
 import VideoCard from '../components/VideoCard';
 import { ChevronDownIcon } from '../components/Icons';
 import { getViews } from '../lib/analytics';
@@ -21,20 +21,34 @@ const categoryColors: Record<string, string> = {
 
 const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
   const [loading, setLoading] = useState(true);
-  const allVideos = useMemo(() => getAllVideos(), []);
+  const [allVideos, setAllVideos] = useState<Video[]>([]);
+  const [categorizedVideos, setCategorizedVideos] = useState<Record<string, Video[]>>({});
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedTag = searchParams.get('tag');
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
 
   useEffect(() => {
-    // Simulate data fetching
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    const loadVideos = async () => {
+      try {
+        const [videos, categorized] = await Promise.all([
+          getAllVideosWithDynamic(),
+          getVideosByCategoryWithDynamic()
+        ]);
+        setAllVideos(videos);
+        setCategorizedVideos(categorized);
+      } catch (error) {
+        console.error('Error loading videos:', error);
+        // Fallback to static videos
+        setAllVideos(getAllVideos());
+        setCategorizedVideos(getVideosByCategory());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideos();
   }, []);
 
-  const categorizedVideos = useMemo(() => getVideosByCategory(), []);
   const categories = useMemo(() => Object.keys(categorizedVideos).sort((a,b) => a === 'User Uploads' ? 1 : b === 'User Uploads' ? -1 : a.localeCompare(b)), [categorizedVideos]);
 
   const recentVideos = useMemo(() => {

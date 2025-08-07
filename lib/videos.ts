@@ -1,6 +1,7 @@
 
 
 import { Video } from '../types';
+import { Client } from '@replit/object-storage';
 
 // Helper to create a URL-friendly slug from a string
 const createSlug = (title: string) => {
@@ -147,11 +148,73 @@ const addCategoryToVideo = (video: Omit<Video, 'category'>, category: string): V
   category,
 });
 
+// Function to load videos from Object Storage
+async function loadVideosFromStorage(): Promise<Video[]> {
+  try {
+    const client = new Client();
+    const { ok, value: files, error } = await client.list();
+    
+    if (!ok || !files) {
+      console.warn('Could not load files from Object Storage:', error);
+      return [];
+    }
+
+    const dynamicVideos: Video[] = [];
+    const actressMap: Record<string, string> = {
+      'Melissa-Stratton': 'Melissa Stratton',
+      'Nikoleta': 'Nikoleta',
+      'Sasha-E': 'Sasha E'
+    };
+
+    for (const file of files) {
+      if (file.name.startsWith('lib/data/') && file.name.endsWith('.md')) {
+        try {
+          const { ok: downloadOk, value: content } = await client.downloadAsText(file.name);
+          if (downloadOk && content) {
+            const pathParts = file.name.split('/');
+            const actressFolderName = pathParts[2]; // e.g., 'Melissa-Stratton'
+            const category = actressMap[actressFolderName] || actressFolderName;
+            
+            const video = parseMarkdownToVideo(content);
+            if (video) {
+              dynamicVideos.push(addCategoryToVideo(video, category));
+            }
+          }
+        } catch (fileError) {
+          console.warn(`Could not load video file ${file.name}:`, fileError);
+        }
+      }
+    }
+
+    return dynamicVideos;
+  } catch (error) {
+    console.warn('Error loading videos from Object Storage:', error);
+    return [];
+  }
+}
+
 export function getAllVideos(): Video[] {
-  const allVideos = staticVideoData.map(({ markdownContent, category }) => {
+  const staticVideos = staticVideoData.map(({ markdownContent, category }) => {
     const video = parseMarkdownToVideo(markdownContent);
     return video ? addCategoryToVideo(video, category) : null;
   }).filter(Boolean) as Video[];
+  
+  return staticVideos;
+}
+
+export async function getAllVideosWithDynamic(): Promise<Video[]> {
+  const staticVideos = getAllVideos();
+  const dynamicVideos = await loadVideosFromStorage();
+  
+  // Combine and deduplicate videos (dynamic videos override static ones with same slug)
+  const allVideos = [...staticVideos];
+  const staticSlugs = new Set(staticVideos.map(v => v.slug));
+  
+  for (const dynamicVideo of dynamicVideos) {
+    if (!staticSlugs.has(dynamicVideo.slug)) {
+      allVideos.push(dynamicVideo);
+    }
+  }
   
   return allVideos;
 }
@@ -172,6 +235,20 @@ export function getVideosByCategory(): Record<string, Video[]> {
       }
       categories[category].push(addCategoryToVideo(video, category));
     }
+  }
+
+  return categories;
+}
+
+export async function getVideosByCategoryWithDynamic(): Promise<Record<string, Video[]>> {
+  const allVideos = await getAllVideosWithDynamic();
+  const categories: Record<string, Video[]> = {};
+  
+  for (const video of allVideos) {
+    if (!categories[video.category]) {
+      categories[video.category] = [];
+    }
+    categories[video.category].push(video);
   }
 
   return categories;
