@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getVideoBySlug, getAllVideos } from '../lib/videos';
@@ -106,7 +105,7 @@ const WatchPage: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     setVideo(null); // Reset video on slug change
-    
+
     // Simulate fetch
     const timer = setTimeout(() => {
       if (slug) {
@@ -117,12 +116,12 @@ const WatchPage: React.FC = () => {
           // Track the view and update the state to re-render with the new count
           trackView(slug);
           setViewCount(getViews(slug));
-          
+
           const allVideos = getAllVideos();
           // Suggest related videos, prioritizing the same category
           const sameCategory = allVideos.filter(v => v.category === currentVideo.category && v.slug !== slug);
           const otherVideos = allVideos.filter(v => v.category !== currentVideo.category && v.slug !== slug);
-          
+
           setRelatedVideos([...sameCategory, ...otherVideos].slice(0, 10));
         }
       }
@@ -214,10 +213,11 @@ const WatchPage: React.FC = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="w-full h-full"
+                loading="lazy"
               ></iframe>
             )}
           </div>
-          
+
           {/* Ad Banner Below Video */}
           <div className="my-6">
             <AdBanner placement="watch-bottom-banner" />

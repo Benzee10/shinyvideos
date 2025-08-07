@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Video } from '../types';
 
 // Helper to create a URL-friendly slug from a string
 const createSlug = (title: string) => {
@@ -21,276 +20,254 @@ const AddVideoPage: React.FC = () => {
         duration: '',
         tags: '',
         description: '',
-        actress: 'Melissa Stratton'
+        category: ''
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitSuccess, setSubmitSuccess] = useState(false);
-    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [generatedMarkdown, setGeneratedMarkdown] = useState('');
+    const [copied, setCopied] = useState(false);
 
-    const actresses = ['Melissa Stratton', 'Nikoleta', 'Sasha E'];
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
-        setSubmitError(null);
     };
 
     const validateForm = () => {
-        const { title, videoUrl, thumbnail, duration, actress } = formData;
+        const { title, videoUrl, thumbnail, duration, category } = formData;
         if (!title.trim()) return 'Title is required';
         if (!videoUrl.trim()) return 'Video URL is required';
         if (!thumbnail.trim()) return 'Thumbnail URL is required';
         if (!duration.trim()) return 'Duration is required';
-        if (!actress) return 'Actress selection is required';
+        if (!category.trim()) return 'Category is required';
         return null;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const generateMarkdown = (e: React.FormEvent) => {
         e.preventDefault();
         
         const validationError = validateForm();
         if (validationError) {
-            setSubmitError(validationError);
+            alert(validationError);
             return;
         }
 
-        setIsSubmitting(true);
-        setSubmitError(null);
-
-        try {
-            // Create markdown content
-            const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
-            const slug = createSlug(formData.title);
-            
-            const markdownContent = `# ${formData.title}
+        const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+        const slug = createSlug(formData.title);
+        
+        const markdownContent = `# ${formData.title}
 
 **Video URL:** ${formData.videoUrl}
 **Thumbnail:** ${formData.thumbnail}
 **Duration:** ${formData.duration}
 **Tags:** ${tagsArray.join(', ')}
+**Category:** ${formData.category}
 **Description:** ${formData.description || '.'}`;
 
-            // Create video object for videos.ts
-            const videoObject = {
-                slug,
-                title: formData.title,
-                videoUrl: formData.videoUrl,
-                thumbnail: formData.thumbnail,
-                duration: formData.duration,
-                tags: tagsArray,
-                description: formData.description || '.',
-                uploadDate: new Date().toISOString().split('T')[0],
-                category: formData.actress
-            };
+        setGeneratedMarkdown(markdownContent);
+    };
 
-            // Save the markdown file using Replit Object Storage
-            const fileName = `${slug}.md`;
-            const folderPath = `lib/data/${formData.actress.replace(' ', '-')}/`;
-            
-            try {
-                // Import Replit Object Storage client
-                const { Client } = await import('@replit/object-storage');
-                const client = new Client();
-                
-                const fullPath = folderPath + fileName;
-                console.log('Saving to:', fullPath);
-                
-                // Save the markdown file to Object Storage
-                const uploadResult = await client.uploadFromText(fullPath, markdownContent);
-                if (!uploadResult.ok) {
-                    throw new Error(`Failed to save file: ${uploadResult.error?.message || 'Unknown error'}`);
-                }
-                
-                console.log('File saved successfully:', fullPath);
-            } catch (error) {
-                console.error('Error saving file:', error);
-                throw new Error('Failed to save video file');
-            }
-
-            setSubmitSuccess(true);
-            
-            // Reset form
-            setFormData({
-                title: '',
-                videoUrl: '',
-                thumbnail: '',
-                duration: '',
-                tags: '',
-                description: '',
-                actress: 'Melissa Stratton'
-            });
-
-            setTimeout(() => setSubmitSuccess(false), 5000);
-
-        } catch (error) {
-            setSubmitError('An error occurred while adding the video. Please try again.');
-            console.error('Error adding video:', error);
-        } finally {
-            setIsSubmitting(false);
+    const copyToClipboard = async () => {
+        try {
+            await navigator.clipboard.writeText(generatedMarkdown);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
         }
+    };
+
+    const clearForm = () => {
+        setFormData({
+            title: '',
+            videoUrl: '',
+            thumbnail: '',
+            duration: '',
+            tags: '',
+            description: '',
+            category: ''
+        });
+        setGeneratedMarkdown('');
     };
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="max-w-2xl mx-auto bg-gray-800/50 p-8 rounded-xl shadow-lg">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2 text-center">Add New Video</h1>
-                <p className="text-gray-400 mb-8 text-center">
-                    Fill out the form below to add a new video to your collection.
-                </p>
+            <div className="max-w-4xl mx-auto">
+                <div className="bg-gray-800/50 p-8 rounded-xl shadow-lg mb-8">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2 text-center">Add New Video</h1>
+                    <p className="text-gray-400 mb-8 text-center">
+                        Fill out the form below to generate markdown code for your video.
+                    </p>
 
-                {submitSuccess && (
-                    <div className="mb-6 p-4 bg-green-900/30 border border-green-700 rounded-lg">
-                        <p className="text-green-400 text-sm font-medium">✅ Video added successfully!</p>
-                    </div>
-                )}
+                    <form onSubmit={generateMarkdown} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
+                                    Title *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter video title"
+                                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                />
+                            </div>
 
-                {submitError && (
-                    <div className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg">
-                        <p className="text-red-400 text-sm">{submitError}</p>
-                    </div>
-                )}
+                            <div>
+                                <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-2">
+                                    Category *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="category"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="e.g., Melissa Stratton, Nikoleta, etc."
+                                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                />
+                            </div>
+                        </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
-                            Title *
-                        </label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={formData.title}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="Enter video title"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                    </div>
+                        <div>
+                            <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-300 mb-2">
+                                Video URL * (Embed URL or MP4 file URL)
+                            </label>
+                            <input
+                                type="url"
+                                id="videoUrl"
+                                name="videoUrl"
+                                value={formData.videoUrl}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="https://www.xerotica.com/embed/12345 or https://example.com/video.mp4"
+                                className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Supports both embed URLs and direct MP4 links</p>
+                        </div>
 
-                    <div>
-                        <label htmlFor="actress" className="block text-sm font-medium text-gray-300 mb-2">
-                            Actress *
-                        </label>
-                        <select
-                            id="actress"
-                            name="actress"
-                            value={formData.actress}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        >
-                            {actresses.map(actress => (
-                                <option key={actress} value={actress}>{actress}</option>
-                            ))}
-                        </select>
-                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-300 mb-2">
+                                    Thumbnail URL *
+                                </label>
+                                <input
+                                    type="url"
+                                    id="thumbnail"
+                                    name="thumbnail"
+                                    value={formData.thumbnail}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="https://i.postimg.cc/example/thumbnail.jpg"
+                                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-300 mb-2">
-                            Video URL *
-                        </label>
-                        <input
-                            type="url"
-                            id="videoUrl"
-                            name="videoUrl"
-                            value={formData.videoUrl}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="https://www.xerotica.com/embed/12345"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                    </div>
+                            <div>
+                                <label htmlFor="duration" className="block text-sm font-medium text-gray-300 mb-2">
+                                    Duration *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="duration"
+                                    name="duration"
+                                    value={formData.duration}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="05:30"
+                                    pattern="[0-9]{1,2}:[0-9]{2}"
+                                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Format: MM:SS or HH:MM:SS</p>
+                            </div>
+                        </div>
 
-                    <div>
-                        <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-300 mb-2">
-                            Thumbnail URL *
-                        </label>
-                        <input
-                            type="url"
-                            id="thumbnail"
-                            name="thumbnail"
-                            value={formData.thumbnail}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="https://i.postimg.cc/example/thumbnail.jpg"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                    </div>
+                        <div>
+                            <label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-2">
+                                Tags
+                            </label>
+                            <input
+                                type="text"
+                                id="tags"
+                                name="tags"
+                                value={formData.tags}
+                                onChange={handleInputChange}
+                                placeholder="Brunette, Big Boobs, Masturbation"
+                                className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+                        </div>
 
-                    <div>
-                        <label htmlFor="duration" className="block text-sm font-medium text-gray-300 mb-2">
-                            Duration *
-                        </label>
-                        <input
-                            type="text"
-                            id="duration"
-                            name="duration"
-                            value={formData.duration}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="05:30"
-                            pattern="[0-9]{1,2}:[0-9]{2}"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Format: MM:SS or HH:MM:SS</p>
-                    </div>
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows={4}
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                placeholder="Enter video description (optional)"
+                                className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            />
+                        </div>
 
-                    <div>
-                        <label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-2">
-                            Tags
-                        </label>
-                        <input
-                            type="text"
-                            id="tags"
-                            name="tags"
-                            value={formData.tags}
-                            onChange={handleInputChange}
-                            placeholder="Brunette, Big Boobs, Masturbation"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
-                    </div>
-
-                    <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
-                            Description
-                        </label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            rows={4}
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            placeholder="Enter video description (optional)"
-                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                    </div>
-
-                    <div className="text-center pt-4">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 text-lg"
-                        >
-                            {isSubmitting ? 'Adding Video...' : 'Add Video'}
-                        </button>
-                    </div>
-                </form>
-
-                <div className="mt-8 p-6 bg-gray-900/30 rounded-lg border border-gray-700">
-                    <h3 className="text-lg font-semibold text-white mb-3">How it works:</h3>
-                    <ol className="text-sm text-gray-300 space-y-2">
-                        <li>1. Fill out the form with your video details</li>
-                        <li>2. Select the actress from the dropdown</li>
-                        <li>3. Click "Add Video" and the system will:</li>
-                        <li className="ml-4">• Create a .md file in the correct actress folder</li>
-                        <li className="ml-4">• Update the videos.ts file automatically</li>
-                        <li className="ml-4">• Show a success message when complete</li>
-                    </ol>
+                        <div className="flex gap-4 justify-center pt-4">
+                            <button
+                                type="submit"
+                                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 text-lg"
+                            >
+                                Generate Markdown
+                            </button>
+                            <button
+                                type="button"
+                                onClick={clearForm}
+                                className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 text-lg"
+                            >
+                                Clear Form
+                            </button>
+                        </div>
+                    </form>
                 </div>
+
+                {generatedMarkdown && (
+                    <div className="bg-gray-800/50 p-8 rounded-xl shadow-lg">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-white">Generated Markdown</h2>
+                            <button
+                                onClick={copyToClipboard}
+                                className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-200 ${
+                                    copied 
+                                        ? 'bg-green-600 text-white' 
+                                        : 'bg-cyan-500 hover:bg-cyan-600 text-white'
+                                }`}
+                            >
+                                {copied ? '✓ Copied!' : 'Copy to Clipboard'}
+                            </button>
+                        </div>
+                        
+                        <pre className="bg-gray-900/70 border border-gray-700 rounded-lg p-4 text-gray-300 overflow-x-auto text-sm whitespace-pre-wrap">
+                            {generatedMarkdown}
+                        </pre>
+                        
+                        <div className="mt-6 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
+                            <h3 className="text-lg font-semibold text-white mb-2">📝 Instructions:</h3>
+                            <ol className="text-sm text-gray-300 space-y-1">
+                                <li>1. Copy the generated markdown above</li>
+                                <li>2. Create a new .md file in the appropriate category folder (lib/data/[category-name]/)</li>
+                                <li>3. Use the slug as the filename: <code className="bg-gray-800 px-1 rounded">{createSlug(formData.title) || 'video-slug'}.md</code></li>
+                                <li>4. Paste the markdown content and save</li>
+                                <li>5. The video will automatically appear on the homepage!</li>
+                            </ol>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

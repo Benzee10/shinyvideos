@@ -33,6 +33,8 @@ const parseMarkdownToVideo = (markdown: string): Omit<Video, 'category'> | null 
       } else if (line.startsWith('**Tags:**')) {
         const tagsStr = line.replace('**Tags:**', '').trim();
         videoData.tags = tagsStr.split(',').map(tag => tag.trim()).filter(Boolean);
+      } else if (line.startsWith('**Category:**')) {
+        videoData.category = line.replace('**Category:**', '').trim();
       } else if (line.startsWith('**Description:**')) {
         videoData.description = line.replace('**Description:**', '').trim();
       } else if (!line.startsWith('**') && !line.startsWith('#') && videoData.description === undefined) {
@@ -148,49 +150,85 @@ const addCategoryToVideo = (video: Omit<Video, 'category'>, category: string): V
   category,
 });
 
-// Function to load videos from Object Storage
-async function loadVideosFromStorage(): Promise<Video[]> {
-  try {
-    const client = new Client();
-    const { ok, value: files, error } = await client.list();
+// Function to load videos from markdown files
+async function loadVideosFromFiles(): Promise<Video[]> {
+  const allVideos: Video[] = [];
+  
+  // Define categories and their corresponding folder structures
+  const categories = [
+    'Melissa Stratton',
+    'Nikoleta', 
+    'Sasha E'
+  ];
+
+  // Function to convert category name to folder name
+  const getFolderName = (category: string) => category.replace(' ', '-');
+
+  for (const category of categories) {
+    const folderName = getFolderName(category);
     
-    if (!ok || !files) {
-      console.warn('Could not load files from Object Storage:', error);
-      return [];
-    }
+    try {
+      // Import all markdown files from each category folder
+      const moduleFiles = import.meta.glob('/lib/data/*/**.md', { 
+        as: 'raw',
+        eager: false 
+      });
 
-    const dynamicVideos: Video[] = [];
-    const actressMap: Record<string, string> = {
-      'Melissa-Stratton': 'Melissa Stratton',
-      'Nikoleta': 'Nikoleta',
-      'Sasha-E': 'Sasha E'
-    };
-
-    for (const file of files) {
-      if (file.name.startsWith('lib/data/') && file.name.endsWith('.md')) {
-        try {
-          const { ok: downloadOk, value: content } = await client.downloadAsText(file.name);
-          if (downloadOk && content) {
-            const pathParts = file.name.split('/');
-            const actressFolderName = pathParts[2]; // e.g., 'Melissa-Stratton'
-            const category = actressMap[actressFolderName] || actressFolderName;
-            
+      for (const [path, moduleLoader] of Object.entries(moduleFiles)) {
+        if (path.includes(`/lib/data/${folderName}/`)) {
+          try {
+            const content = await moduleLoader();
             const video = parseMarkdownToVideo(content);
+            
             if (video) {
-              dynamicVideos.push(addCategoryToVideo(video, category));
+              // Use category from markdown or fallback to folder-based category
+              const finalCategory = video.category || category;
+              allVideos.push(addCategoryToVideo(video, finalCategory));
             }
+          } catch (fileError) {
+            console.warn(`Could not load video file ${path}:`, fileError);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`Error loading videos from ${category}:`, error);
+    }
+  }
+
+  // Also try to load any additional category folders dynamically
+  try {
+    const allModuleFiles = import.meta.glob('/lib/data/*/**.md', { 
+      as: 'raw',
+      eager: false 
+    });
+
+    for (const [path, moduleLoader] of Object.entries(allModuleFiles)) {
+      const pathParts = path.split('/');
+      if (pathParts.length >= 4) {
+        const folderName = pathParts[3]; // e.g., 'New-Category'
+        const categoryName = folderName.replace('-', ' ');
+        
+        // Skip if we already processed this category
+        if (categories.includes(categoryName)) continue;
+        
+        try {
+          const content = await moduleLoader();
+          const video = parseMarkdownToVideo(content);
+          
+          if (video) {
+            const finalCategory = video.category || categoryName;
+            allVideos.push(addCategoryToVideo(video, finalCategory));
           }
         } catch (fileError) {
-          console.warn(`Could not load video file ${file.name}:`, fileError);
+          console.warn(`Could not load video file ${path}:`, fileError);
         }
       }
     }
-
-    return dynamicVideos;
   } catch (error) {
-    console.warn('Error loading videos from Object Storage:', error);
-    return [];
+    console.warn('Error loading additional video categories:', error);
   }
+
+  return allVideos;
 }
 
 export function getAllVideos(): Video[] {
@@ -204,15 +242,15 @@ export function getAllVideos(): Video[] {
 
 export async function getAllVideosWithDynamic(): Promise<Video[]> {
   const staticVideos = getAllVideos();
-  const dynamicVideos = await loadVideosFromStorage();
+  const fileVideos = await loadVideosFromFiles();
   
-  // Combine and deduplicate videos (dynamic videos override static ones with same slug)
+  // Combine and deduplicate videos (file videos override static ones with same slug)
   const allVideos = [...staticVideos];
   const staticSlugs = new Set(staticVideos.map(v => v.slug));
   
-  for (const dynamicVideo of dynamicVideos) {
-    if (!staticSlugs.has(dynamicVideo.slug)) {
-      allVideos.push(dynamicVideo);
+  for (const fileVideo of fileVideos) {
+    if (!staticSlugs.has(fileVideo.slug)) {
+      allVideos.push(fileVideo);
     }
   }
   
@@ -249,6 +287,13 @@ export async function getVideosByCategoryWithDynamic(): Promise<Record<string, V
       categories[video.category] = [];
     }
     categories[video.category].push(video);
+  }
+
+  // Sort videos within each category by upload date (newest first)
+  for (const category in categories) {
+    categories[category].sort((a, b) => 
+      new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+    );
   }
 
   return categories;
