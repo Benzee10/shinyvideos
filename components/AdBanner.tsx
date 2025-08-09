@@ -47,6 +47,7 @@ const adConfigs: Record<AdPlacement, any> = {
 const AdBanner: React.FC<AdBannerProps> = ({ placement, className = '' }) => {
   const adContainerRef = useRef<HTMLDivElement>(null);
   const config = adConfigs[placement];
+  const smartLink = "https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/";
 
   useEffect(() => {
     const adContainer = adContainerRef.current;
@@ -115,9 +116,12 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = '' }) => {
       <div 
         ref={adContainerRef} 
         style={adDimensions}
-        className="flex justify-center items-center"
+        className="flex justify-center items-center relative cursor-pointer"
+        onClick={() => window.open(smartLink, '_blank')}
       >
         {/* Ad content is dynamically injected here */}
+        <div className="absolute inset-0 z-10 bg-transparent hover:bg-black/10 transition-colors" 
+             title="Click for premium content" />
       </div>
     </div>
   );

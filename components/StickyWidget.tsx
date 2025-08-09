@@ -11,8 +11,8 @@ const videoUrls = [
   "https://images-assets.project1content.com/assets/brand/1241/tgp/3421/cell/page_1/adId_0/680b9964d538f7.59762869.mp4"
 ];
 
-// User did not provide a smart link, so using a placeholder.
-const smartLink = "#"; 
+// Updated smart link for monetization
+const smartLink = "https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/"; 
 
 const StickyWidget: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);

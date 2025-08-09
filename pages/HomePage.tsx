@@ -7,6 +7,7 @@ import { ChevronDownIcon } from '../components/Icons';
 import { getViews } from '../lib/analytics';
 import VideoCardSkeleton from '../components/VideoCardSkeleton';
 import AdBanner from '../components/AdBanner';
+import SmartCTAButton from '../components/SmartCTAButton';
 
 interface HomePageProps {
   searchQuery: string;
@@ -150,6 +151,20 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
       {!isFiltered && !loading && (
         <div className="mb-12">
           <AdBanner placement="home-banner" />
+        </div>
+      )}
+
+      {/* Premium Access Section */}
+      {!isFiltered && !loading && (
+        <div className="mb-12 bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-8 rounded-xl border border-cyan-500/20">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-white mb-4">🔥 Premium Members Only</h2>
+            <p className="text-xl text-gray-300 mb-6">Access exclusive content, HD quality, and ad-free browsing</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <SmartCTAButton text="Join Premium" variant="primary" size="lg" />
+              <SmartCTAButton text="Free Trial" variant="secondary" size="lg" />
+            </div>
+          </div>
         </div>
       )}
 

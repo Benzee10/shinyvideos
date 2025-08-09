@@ -7,6 +7,7 @@ import { ClockIcon, EyeIcon, FolderIcon } from '../components/Icons';
 import { trackView, getViews } from '../lib/analytics';
 import { saveProgress, getProgress, clearProgress } from '../lib/progress';
 import AdBanner from '../components/AdBanner';
+import SmartCTAButton from '../components/SmartCTAButton';
 
 const WatchPageSkeleton = () => (
   <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
@@ -265,6 +266,15 @@ const WatchPage: React.FC = () => {
           <div className="bg-gray-800/50 p-6 rounded-lg">
             <h2 className="text-xl font-bold text-white mb-2">Description</h2>
             <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">{video.description}</p>
+          </div>
+          
+          {/* Premium Access CTA */}
+          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 p-6 rounded-lg border border-purple-500/30 mt-6">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-white mb-2">Want More Premium Content?</h3>
+              <p className="text-gray-300 mb-4">Unlock exclusive videos and premium features</p>
+              <SmartCTAButton text="Get VIP Access Now" variant="premium" size="lg" />
+            </div>
           </div>
         </div>
 
