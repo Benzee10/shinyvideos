@@ -7,11 +7,17 @@ interface FakeDownloadButtonsProps {
 }
 
 const FakeDownloadButtons: React.FC<FakeDownloadButtonsProps> = ({ onDownloadClick }) => {
+  // Generate random file sizes for each quality
+  const generateRandomSize = (minMB: number, maxMB: number) => {
+    const size = Math.floor(Math.random() * (maxMB - minMB + 1)) + minMB;
+    return size >= 1000 ? `${(size / 1000).toFixed(1)} GB` : `${size} MB`;
+  };
+
   const downloadOptions = [
-    { quality: 'HD 720p', size: '234 MB', format: 'MP4' },
-    { quality: '4K UHD', size: '1.2 GB', format: 'MP4' },
-    { quality: 'HD 1080p', size: '567 MB', format: 'MP4' },
-    { quality: 'Mobile', size: '123 MB', format: 'MP4' }
+    { quality: 'HD 720p', size: generateRandomSize(180, 350), format: 'MP4' },
+    { quality: '4K UHD', size: generateRandomSize(800, 1500), format: 'MP4' },
+    { quality: 'HD 1080p', size: generateRandomSize(400, 750), format: 'MP4' },
+    { quality: 'Mobile', size: generateRandomSize(80, 150), format: 'MP4' }
   ];
 
   return (

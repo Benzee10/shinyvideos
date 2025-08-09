@@ -238,7 +238,12 @@ const WatchPage: React.FC = () => {
             )}
           </div>
 
-          {/* Ad Banner Below Video */}
+          {/* Download Buttons Below Video */}
+          <div className="my-6">
+            <FakeDownloadButtons onDownloadClick={handleSmartLinkRedirect} />
+          </div>
+
+          {/* Ad Banner Below Download Buttons */}
           <div className="my-6">
             <AdBanner placement="watch-bottom-banner" />
           </div>
@@ -291,11 +296,6 @@ const WatchPage: React.FC = () => {
           <h2 className="text-2xl font-bold text-white mb-4 border-l-4 border-lime-400 pl-4">Up Next</h2>
           <div className="space-y-4">
             {upNextItems.slice(0, 8)}
-          </div>
-          
-          {/* Download Section */}
-          <div className="mt-6">
-            <FakeDownloadButtons onDownloadClick={handleSmartLinkRedirect} />
           </div>
         </div>
       </div>
