@@ -8,6 +8,7 @@ import AddVideoPage from './pages/AddVideoPage';
 // import AnalyticsPage from './pages/AnalyticsPage';
 import { FilmIcon, SearchIcon } from './components/Icons';
 import StickyWidget from './components/StickyWidget';
+import DailyPopup from './components/DailyPopup';
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +54,7 @@ function App() {
           </Routes>
         </main>
         <StickyWidget />
+        <DailyPopup />
       </div>
     </HashRouter>
   );
