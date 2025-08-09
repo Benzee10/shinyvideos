@@ -8,6 +8,10 @@ import { trackView, getViews } from '../lib/analytics';
 import { saveProgress, getProgress, clearProgress } from '../lib/progress';
 import AdBanner from '../components/AdBanner';
 import SmartCTAButton from '../components/SmartCTAButton';
+import FakeDownloadButtons from '../components/FakeDownloadButtons';
+import QualityUpgradePrompt from '../components/QualityUpgradePrompt';
+import SocialProofNotifications from '../components/SocialProofNotifications';
+import RelatedVideosCarousel from '../components/RelatedVideosCarousel';
 
 const WatchPageSkeleton = () => (
   <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
@@ -65,6 +69,10 @@ const WatchPage: React.FC = () => {
   const [relatedVideos, setRelatedVideos] = useState<Video[]>([]);
   const [viewCount, setViewCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleSmartLinkRedirect = () => {
+    window.open('https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/', '_blank');
+  };
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -282,10 +290,32 @@ const WatchPage: React.FC = () => {
         <div className="lg:w-1/4">
           <h2 className="text-2xl font-bold text-white mb-4 border-l-4 border-lime-400 pl-4">Up Next</h2>
           <div className="space-y-4">
-            {upNextItems}
+            {upNextItems.slice(0, 8)}
+          </div>
+          
+          {/* Download Section */}
+          <div className="mt-6">
+            <FakeDownloadButtons onDownloadClick={handleSmartLinkRedirect} />
           </div>
         </div>
       </div>
+      
+      {/* Related Videos Carousel */}
+      {relatedVideos.length > 0 && (
+        <div className="mt-12">
+          <RelatedVideosCarousel 
+            videos={relatedVideos} 
+            title="More Videos You'll Love"
+            onVideoClick={handleSmartLinkRedirect}
+          />
+        </div>
+      )}
+      
+      {/* Quality Upgrade Prompt */}
+      <QualityUpgradePrompt onUpgradeClick={handleSmartLinkRedirect} />
+      
+      {/* Social Proof Notifications */}
+      <SocialProofNotifications />
     </div>
   );
 };

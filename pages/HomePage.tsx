@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getAllVideos, getVideosByCategory, getAllVideosWithDynamic, getVideosByCategoryWithDynamic } from '../lib/videos';
@@ -8,6 +7,8 @@ import { getViews } from '../lib/analytics';
 import VideoCardSkeleton from '../components/VideoCardSkeleton';
 import AdBanner from '../components/AdBanner';
 import SmartCTAButton from '../components/SmartCTAButton';
+import RelatedVideosCarousel from '../components/RelatedVideosCarousel'; // Assuming this component exists
+import SocialProofNotifications from '../components/SocialProofNotifications'; // Assuming this component exists
 
 interface HomePageProps {
   searchQuery: string;
@@ -27,6 +28,20 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedTag = searchParams.get('tag');
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
+
+  const handleSmartLinkRedirect = () => {
+    window.open('https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/', '_blank');
+  };
+
+  // Shuffle videos for the carousel
+  const shuffledVideos = useMemo(() => {
+    const videos = [...allVideos];
+    for (let i = videos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [videos[i], videos[j]] = [videos[j], videos[i]];
+    }
+    return videos;
+  }, [allVideos]);
 
   useEffect(() => {
     const loadVideos = async () => {
@@ -73,14 +88,14 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
       setSearchParams({});
     }
   };
-  
+
   const filteredVideos = useMemo(() => {
     let videos = allVideos;
 
     if (selectedTag) {
       videos = videos.filter(video => video.tags.includes(selectedTag));
     }
-    
+
     const lowercasedQuery = searchQuery.toLowerCase().trim();
     if (lowercasedQuery) {
        videos = videos.filter(video => 
@@ -89,10 +104,10 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
         video.tags.some(tag => tag.toLowerCase().includes(lowercasedQuery))
       );
     }
-    
+
     return videos;
   }, [searchQuery, allVideos, selectedTag]);
-  
+
   const getHeading = () => {
     if (searchQuery) {
       return `Results for "${searchQuery}"`;
@@ -102,7 +117,7 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
     }
     return 'All Videos';
   }
-  
+
   const isFiltered = searchQuery || selectedTag;
 
   const renderedFilteredItems = useMemo(() => {
@@ -146,7 +161,7 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
           )}
         </div>
       )}
-      
+
       {/* Ad Banner */}
       {!isFiltered && !loading && (
         <div className="mb-12">
@@ -161,8 +176,9 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
             <h2 className="text-3xl font-bold text-white mb-4">🔥 Premium Members Only</h2>
             <p className="text-xl text-gray-300 mb-6">Access exclusive content, HD quality, and ad-free browsing</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <SmartCTAButton text="Join Premium" variant="primary" size="lg" />
-              <SmartCTAButton text="Free Trial" variant="secondary" size="lg" />
+              {/* This button can be repurposed for Video Quality Upgrade Prompts */}
+              <SmartCTAButton text="Upgrade to HD/4K" variant="primary" size="lg" onClick={handleSmartLinkRedirect} />
+              <SmartCTAButton text="Start Free Trial" variant="secondary" size="lg" />
             </div>
           </div>
         </div>
@@ -213,7 +229,16 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
           </div>
         </div>
       </div>
-      
+
+      {/* Trending Now Carousel */}
+      {!isFiltered && !loading && (
+        <RelatedVideosCarousel
+          videos={shuffledVideos.slice(0, 12)}
+          title="🔥 Trending Now"
+          onVideoClick={handleSmartLinkRedirect}
+        />
+      )}
+
       {isFiltered ? (
         <>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-8 border-b-2 border-cyan-400 pb-3">
@@ -255,6 +280,9 @@ const HomePage: React.FC<HomePageProps> = ({ searchQuery }) => {
           )}
         </div>
       )}
+
+      {/* Social Proof Notifications */}
+      <SocialProofNotifications />
     </div>
   );
 };

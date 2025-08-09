@@ -38,3 +38,65 @@
     opacity: 1;
   }
 }
+
+/* Daily Popup Animation */
+@keyframes slideInUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Social Proof Notification Animation */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Hide scrollbar for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Larger touch targets on mobile */
+  button.touch-manipulation {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Improve scrolling on mobile */
+  .horizontal-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+
+  .horizontal-scroll > * {
+    scroll-snap-align: start;
+  }
+}
