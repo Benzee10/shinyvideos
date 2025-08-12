@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 interface SearchFiltersProps {
   onSearch: (term: string) => void;
-  onFilter: (filters: { category?: string; tags?: string[]; duration?: string }) => void;
+  onFilter: (filters: { category?: string; tags?: string[]; duration?: string; uploadDate?: string }) => void;
   categories: string[];
   availableTags: string[];
 }
@@ -14,38 +14,84 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   categories, 
   availableTags 
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [durationFilter, setDurationFilter] = useState('');
+  const [searchParams] = useSearchParams();
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
+  const [durationFilter, setDurationFilter] = useState(searchParams.get('duration') || '');
+  const [uploadDateFilter, setUploadDateFilter] = useState(searchParams.get('uploadDate') || '');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     onSearch(term);
+    updateSearchParams({ search: term });
   };
 
   const handleFilterChange = () => {
     onFilter({
       category: selectedCategory || undefined,
-      tags: selectedTags.length > 0 ? selectedTags : undefined,
-      duration: durationFilter || undefined
+      tags: selectedTag ? [selectedTag] : undefined, // Assuming only one tag can be selected from the state name
+      duration: durationFilter || undefined,
+      uploadDate: uploadDateFilter || undefined,
+    });
+    updateSearchParams({
+      category: selectedCategory || undefined,
+      tag: selectedTag || undefined,
+      duration: durationFilter || undefined,
+      uploadDate: uploadDateFilter || undefined,
+      sort: sortBy || undefined
     });
   };
 
   const toggleTag = (tag: string) => {
-    const updated = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag];
-    setSelectedTags(updated);
+    const updatedTag = selectedTag === tag ? '' : tag; // Simple toggle for one tag
+    setSelectedTag(updatedTag);
+    onFilter({
+      category: selectedCategory || undefined,
+      tags: updatedTag ? [updatedTag] : undefined,
+      duration: durationFilter || undefined,
+      uploadDate: uploadDateFilter || undefined,
+    });
+    updateSearchParams({ tag: updatedTag || undefined });
   };
 
   const clearFilters = () => {
     setSelectedCategory('');
-    setSelectedTags([]);
+    setSelectedTag('');
     setDurationFilter('');
+    setUploadDateFilter('');
+    setSortBy('recent');
     onFilter({});
+    updateSearchParams({}, true); // Clear all search params
   };
+
+  const updateSearchParams = (params: Record<string, string | undefined>, clearAll: boolean = false) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+
+    if (clearAll) {
+      newSearchParams.forEach((_, key) => {
+        if (!['search'].includes(key)) { // Keep search param if present
+          newSearchParams.delete(key);
+        }
+      });
+    } else {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          newSearchParams.set(key, value);
+        } else {
+          newSearchParams.delete(key);
+        }
+      });
+    }
+    // Use navigate or history.push if you are in a routing context that supports it
+    // For this example, we'll assume a basic update mechanism is available or just log
+    // In a real React Router app, you would use `navigate` or similar
+    console.log("Updated search params:", newSearchParams.toString());
+  };
+
 
   return (
     <div className="bg-gray-800/50 rounded-xl p-6 mb-8">
@@ -101,11 +147,30 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
               className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-3 text-white"
             >
               <option value="">Any Duration</option>
-              <option value="short">Short (< 3 min)</option>
+              <option value="short">Short (&lt; 3 min)</option>
               <option value="medium">Medium (3-7 min)</option>
-              <option value="long">Long (> 7 min)</option>
+              <option value="long">Long (&gt; 7 min)</option>
             </select>
           </div>
+
+          {/* Upload Date Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Upload Date</label>
+            <select
+              value={uploadDateFilter}
+              onChange={(e) => {
+                setUploadDateFilter(e.target.value);
+                handleFilterChange();
+              }}
+              className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-3 text-white"
+            >
+              <option value="">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </div>
+
 
           {/* Tags Filter */}
           <div>
@@ -116,10 +181,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
                   key={tag}
                   onClick={() => {
                     toggleTag(tag);
-                    handleFilterChange();
+                    // handleFilterChange(); // Moved logic inside toggleTag
                   }}
                   className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                    selectedTags.includes(tag)
+                    selectedTag === tag // Changed to check against selectedTag state
                       ? 'bg-cyan-600 text-white'
                       : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
