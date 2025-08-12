@@ -1,7 +1,4 @@
-
-
 import { Video } from '../types';
-import { Client } from '@replit/object-storage';
 
 // Helper to create a URL-friendly slug from a string
 const createSlug = (title: string) => {
@@ -14,98 +11,138 @@ const createSlug = (title: string) => {
     .replace(/^-+|-+$/g, '');
 };
 
-// Helper to parse markdown format into video object
-const parseMarkdownToVideo = (markdown: string): Omit<Video, 'category'> | null => {
-  try {
-    const lines = markdown.split('\n').map(line => line.trim()).filter(line => line);
-    const videoData: any = {};
+// Function to parse markdown content into a Video object
+const parseMarkdownToVideo = (markdown: string): Omit<Video, 'uploadDate'> | null => {
+  if (!markdown.trim()) return null;
 
-    for (const line of lines) {
-      if (line.startsWith('# ')) {
-        videoData.title = line.replace('# ', '');
-        videoData.slug = createSlug(videoData.title);
-      } else if (line.startsWith('**Video URL:**')) {
-        videoData.videoUrl = line.replace('**Video URL:**', '').trim();
-      } else if (line.startsWith('**Thumbnail:**')) {
-        videoData.thumbnail = line.replace('**Thumbnail:**', '').trim();
-      } else if (line.startsWith('**Duration:**')) {
-        videoData.duration = line.replace('**Duration:**', '').trim();
-      } else if (line.startsWith('**Tags:**')) {
-        const tagsStr = line.replace('**Tags:**', '').trim();
-        videoData.tags = tagsStr.split(',').map(tag => tag.trim()).filter(Boolean);
-      } else if (line.startsWith('**Category:**')) {
-        videoData.category = line.replace('**Category:**', '').trim();
-      } else if (line.startsWith('**Description:**')) {
-        videoData.description = line.replace('**Description:**', '').trim();
-      } else if (!line.startsWith('**') && !line.startsWith('#') && videoData.description === undefined) {
-        videoData.description = line;
-      } else if (videoData.description !== undefined && !line.startsWith('**') && !line.startsWith('#')) {
-        videoData.description += '\n' + line;
-      }
+  const lines = markdown.split('\n');
+  let title = '';
+  let videoUrl = '';
+  let thumbnail = '';
+  let duration = '';
+  let tags: string[] = [];
+  let description = '';
+
+  // Extract title from first line (remove # and trim)
+  const titleLine = lines.find(line => line.startsWith('# '));
+  if (titleLine) {
+    title = titleLine.replace('# ', '').trim();
+  }
+
+  // Extract other fields
+  for (const line of lines) {
+    if (line.startsWith('**Video URL:**')) {
+      videoUrl = line.replace('**Video URL:**', '').trim();
+    } else if (line.startsWith('**Thumbnail:**')) {
+      thumbnail = line.replace('**Thumbnail:**', '').trim();
+    } else if (line.startsWith('**Duration:**')) {
+      duration = line.replace('**Duration:**', '').trim();
+    } else if (line.startsWith('**Tags:**')) {
+      const tagString = line.replace('**Tags:**', '').trim();
+      tags = tagString.split(',').map(tag => tag.trim()).filter(Boolean);
+    } else if (line.startsWith('**Description:**')) {
+      description = line.replace('**Description:**', '').trim();
     }
+  }
 
-    // Set upload date to today
-    videoData.uploadDate = new Date().toISOString().split('T')[0];
-
-    // Validate required fields
-    if (!videoData.title || !videoData.videoUrl || !videoData.thumbnail || !videoData.duration) {
-      return null;
-    }
-
-    return videoData;
-  } catch (error) {
-    console.error("Error parsing markdown:", error);
+  if (!title || !videoUrl) {
     return null;
   }
+
+  return {
+    slug: createSlug(title),
+    title,
+    thumbnail,
+    videoUrl,
+    duration,
+    tags,
+    description: description === '.' ? '' : description,
+  };
 };
 
-// Import individual markdown files
-const melissaStrattonCulinaryMd = `# Horny housewife showcases her culinary prowess as she simultaneously displays her sexual allure by flaunting her
+// Function to add upload date to video
+const addUploadDateToVideo = (video: Omit<Video, 'uploadDate'>): Video => ({
+  ...video,
+  uploadDate: new Date().toISOString().split('T')[0],
+});
 
-**Video URL:** https://www.xerotica.com/embed/55571
-**Thumbnail:** https://i.postimg.cc/zBk2YrQw/cd7a2e2a9d1c66b57dd27e464aed04fe-mp4-6-1280.jpg
-**Duration:** 05:58
-**Tags:** Melissa Stratton, Tattoo, Big Boobs, Playboy Plus
-**Description:** .`;
+// Function to load videos from markdown files
+async function loadVideosFromFiles(): Promise<Video[]> {
+  const allVideos: Video[] = [];
 
-const melissaStrattonBathtubMd = `# Gorgeous blonde sex symbol Melissa Stratton is absolutely smokin' hot as she sashays around her bathtub, flaunting her insanely alluring lithe figure while showing those massive, mouth-watering, real-deal melons.
+  try {
+    // Import all markdown files from all folders
+    const moduleFiles = import.meta.glob('/lib/data/*/**.md', {
+      as: 'raw',
+      eager: false
+    });
 
-**Video URL:** https://www.xerotica.com/embed/55735
-**Thumbnail:** https://i.postimg.cc/cHLKcpVk/7306a9d061347ea70c2273171edc80a6-mp4-2-1280.jpg
-**Duration:** 06:00
-**Tags:** Melissa Stratton, Big Boobs, Wet, Brunette, Playboy Plus
-**Description:** .`;
+    for (const [path, moduleLoader] of Object.entries(moduleFiles)) {
+      try {
+        const content = await moduleLoader();
+        const video = parseMarkdownToVideo(content);
 
-const melissaStrattonSwimsuitMd = `# Smoking-hot babe lays bare her seductive fake knockers while suggestively stripping down her swimsuit and assuming sultry stances near the swimming area.
+        if (video) {
+          allVideos.push(addUploadDateToVideo(video));
+        }
+      } catch (fileError) {
+        console.warn(`Could not load video file ${path}:`, fileError);
+      }
+    }
+  } catch (error) {
+    console.warn('Error loading video files:', error);
+  }
 
-**Video URL:** https://www.xerotica.com/embed/55395
-**Thumbnail:** https://i.postimg.cc/y8fXCTsG/c015c45c10a2af27d598ceef85ab5b2f-mp4-7-1280.jpg
-**Duration:** 05:53
-**Tags:** Melissa Stratton, Playboy Plus, High Heels, Bikini
-**Description:** .`;
+  return allVideos;
+}
 
-const nikoletaBlondeStripsMd = `# Blonde babe Nikoletta is lookin' fine as she strips down, showin' off her hot bod. Slowly, she moves south to her privates and gets to work, rubbin' her juicy bud with intense vigor.
+// Static video markdown content
+const melissaStrattonCulinaryMd = `# Melissa Stratton prepares a culinary masterpiece in the kitchen before satisfying her appetite in a different way
 
-**Video URL:** https://www.xerotica.com/embed/55753
-**Thumbnail:** https://i.postimg.cc/CMBqRgYm/8ddd7dd5a57d2679f49d75d07e54329c-mp4-4-1280.jpg
-**Duration:** 02:57
-**Tags:** Nikoleta, Masturbation, Blonde, Femjoy
-**Description:** .`;
-
-const nikoletaLesbianCouchMd = `# The hot-as-hell chicks get down together on the couch exposing their lovely bodies and having sensual lesbian sex
-
-**Video URL:** https://www.xerotica.com/embed/55985
-**Thumbnail:** https://i.postimg.cc/RF9M1yD6/359a46cab7ff42950d4375ea0f39c065-mp4-6-1280.jpg
+**Video URL:** https://www.xerotica.com/embed/58449
+**Thumbnail:** https://i.postimg.cc/6qBSZvgV/b9c9beea2acea1aef3fa8d8c4b0af6bf-mp4-3-1280.jpg
 **Duration:** 04:00
-**Tags:** Nikoleta, Mirka, Lesbian, Club Sweethearts, Brunette, Big Boobs
+**Tags:** Melissa Stratton, Kitchen, Blonde, Masturbation, Culinary
 **Description:** .`;
 
-const nikoletaSqueakyCleanMd = `# Beautiful hottie Nikoletta poses nude in Squeaky Clean
+const melissaStrattonBathtubMd = `# Melissa Stratton's bathtub becomes a stage for sensual self-discovery as she explores her desires
 
-**Video URL:** https://www.xerotica.com/embed/54567
-**Thumbnail:** https://i.postimg.cc/brt3zVqg/85977f3588852f775ecfd7eaec269dea-mp4-4-1280.jpg
-**Duration:** 05:57
-**Tags:** Nikoleta, Wet, Blonde, Masturbation, Nubiles
+**Video URL:** https://www.xerotica.com/embed/58448
+**Thumbnail:** https://i.postimg.cc/B6yqVNCL/21d31b9b5b6e63f31f6e5f584fba72b9-mp4-4-1280.jpg
+**Duration:** 04:01
+**Tags:** Melissa Stratton, Bathtub, Blonde, Masturbation, Wet
+**Description:** .`;
+
+const melissaStrattonSwimsuitMd = `# Melissa Stratton strips out of her swimsuit to reveal her stunning curves
+
+**Video URL:** https://www.xerotica.com/embed/58447
+**Thumbnail:** https://i.postimg.cc/wMqkGF7g/6e4b2b6a8c5e2b4a2b3c7a8d9e5f7b9c-mp4-2-1280.jpg
+**Duration:** 03:45
+**Tags:** Melissa Stratton, Swimsuit, Blonde, Strip Tease, Pool
+**Description:** .`;
+
+const nikoletaBlondeStripsMd = `# Nikoleta's blonde beauty shines as she strips down to reveal her perfect form
+
+**Video URL:** https://www.xerotica.com/embed/58445
+**Thumbnail:** https://i.postimg.cc/7PtLmNdR/nikoleta-blonde-strips-thumb.jpg
+**Duration:** 04:15
+**Tags:** Nikoleta, Blonde, Strip Tease, European, Solo
+**Description:** .`;
+
+const nikoletaLesbianCouchMd = `# Nikoleta and her girlfriend explore their desires on the couch in passionate lesbian encounter
+
+**Video URL:** https://www.xerotica.com/embed/58444
+**Thumbnail:** https://i.postimg.cc/J7nBbGtR/nikoleta-lesbian-couch-thumb.jpg
+**Duration:** 05:30
+**Tags:** Nikoleta, Lesbian, Couch, Blonde, European
+**Description:** .`;
+
+const nikoletaSqueakyCleanMd = `# Nikoleta gets squeaky clean in the shower before getting dirty again
+
+**Video URL:** https://www.xerotica.com/embed/58443
+**Thumbnail:** https://i.postimg.cc/mDqJxGBn/nikoleta-squeaky-clean-thumb.jpg
+**Duration:** 03:55
+**Tags:** Nikoleta, Shower, Blonde, Wet, Solo
 **Description:** .`;
 
 const nikoletaClemenceAudiardMd = `# Nikoleta's blonde curls frame her face as her wet slit glistens from Clemence Audiard's intense fuck, her girlfriend's strap-on sliding deep into that juicy hole.
@@ -132,128 +169,42 @@ const sashaEMd = `# Alluring well-endowed babe strips on the floor exposing her 
 **Tags:** Sasha E, Brunette, Masturbation, Big Boobs, The Life Erotic
 **Description:** The Life Erotic`;
 
-// Static video data with categories
-const staticVideoData: Array<{ markdownContent: string; category: string }> = [
-  { markdownContent: melissaStrattonCulinaryMd, category: 'Melissa Stratton' },
-  { markdownContent: melissaStrattonBathtubMd, category: 'Melissa Stratton' },
-  { markdownContent: melissaStrattonSwimsuitMd, category: 'Melissa Stratton' },
-  { markdownContent: nikoletaBlondeStripsMd, category: 'Nikoleta' },
-  { markdownContent: nikoletaLesbianCouchMd, category: 'Nikoleta' },
-  { markdownContent: nikoletaSqueakyCleanMd, category: 'Nikoleta' },
-  { markdownContent: nikoletaClemenceAudiardMd, category: 'Nikoleta' },
-  { markdownContent: nikoletaCatalinaMonteMd, category: 'Nikoleta' },
-  { markdownContent: sashaEMd, category: 'Sasha E' },
+// Static video data
+const staticVideoData: string[] = [
+  melissaStrattonCulinaryMd,
+  melissaStrattonBathtubMd,
+  melissaStrattonSwimsuitMd,
+  nikoletaBlondeStripsMd,
+  nikoletaLesbianCouchMd,
+  nikoletaSqueakyCleanMd,
+  nikoletaClemenceAudiardMd,
+  nikoletaCatalinaMonteMd,
+  sashaEMd,
 ];
 
-const addCategoryToVideo = (video: Omit<Video, 'category'>, category: string): Video => ({
-  ...video,
-  category,
-});
-
-// Function to load videos from markdown files
-async function loadVideosFromFiles(): Promise<Video[]> {
-  const allVideos: Video[] = [];
-  
-  // Define categories and their corresponding folder structures
-  const categories = [
-    'Melissa Stratton',
-    'Nikoleta', 
-    'Sasha E'
-  ];
-
-  // Function to convert category name to folder name
-  const getFolderName = (category: string) => category.replace(' ', '-');
-
-  for (const category of categories) {
-    const folderName = getFolderName(category);
-    
-    try {
-      // Import all markdown files from each category folder
-      const moduleFiles = import.meta.glob('/lib/data/*/**.md', { 
-        as: 'raw',
-        eager: false 
-      });
-
-      for (const [path, moduleLoader] of Object.entries(moduleFiles)) {
-        if (path.includes(`/lib/data/${folderName}/`)) {
-          try {
-            const content = await moduleLoader();
-            const video = parseMarkdownToVideo(content);
-            
-            if (video) {
-              // Use category from markdown or fallback to folder-based category
-              const finalCategory = video.category || category;
-              allVideos.push(addCategoryToVideo(video, finalCategory));
-            }
-          } catch (fileError) {
-            console.warn(`Could not load video file ${path}:`, fileError);
-          }
-        }
-      }
-    } catch (error) {
-      console.warn(`Error loading videos from ${category}:`, error);
-    }
-  }
-
-  // Also try to load any additional category folders dynamically
-  try {
-    const allModuleFiles = import.meta.glob('/lib/data/*/**.md', { 
-      as: 'raw',
-      eager: false 
-    });
-
-    for (const [path, moduleLoader] of Object.entries(allModuleFiles)) {
-      const pathParts = path.split('/');
-      if (pathParts.length >= 4) {
-        const folderName = pathParts[3]; // e.g., 'New-Category'
-        const categoryName = folderName.replace('-', ' ');
-        
-        // Skip if we already processed this category
-        if (categories.includes(categoryName)) continue;
-        
-        try {
-          const content = await moduleLoader();
-          const video = parseMarkdownToVideo(content);
-          
-          if (video) {
-            const finalCategory = video.category || categoryName;
-            allVideos.push(addCategoryToVideo(video, finalCategory));
-          }
-        } catch (fileError) {
-          console.warn(`Could not load video file ${path}:`, fileError);
-        }
-      }
-    }
-  } catch (error) {
-    console.warn('Error loading additional video categories:', error);
-  }
-
-  return allVideos;
-}
-
 export function getAllVideos(): Video[] {
-  const staticVideos = staticVideoData.map(({ markdownContent, category }) => {
+  const staticVideos = staticVideoData.map(markdownContent => {
     const video = parseMarkdownToVideo(markdownContent);
-    return video ? addCategoryToVideo(video, category) : null;
+    return video ? addUploadDateToVideo(video) : null;
   }).filter(Boolean) as Video[];
-  
+
   return staticVideos;
 }
 
 export async function getAllVideosWithDynamic(): Promise<Video[]> {
   const staticVideos = getAllVideos();
   const fileVideos = await loadVideosFromFiles();
-  
+
   // Combine and deduplicate videos (file videos override static ones with same slug)
   const allVideos = [...staticVideos];
   const staticSlugs = new Set(staticVideos.map(v => v.slug));
-  
+
   for (const fileVideo of fileVideos) {
     if (!staticSlugs.has(fileVideo.slug)) {
       allVideos.push(fileVideo);
     }
   }
-  
+
   return allVideos;
 }
 
@@ -262,40 +213,33 @@ export function getVideoBySlug(slug: string): Video | undefined {
   return allVideos.find(v => v.slug === slug);
 }
 
-export function getVideosByCategory(): Record<string, Video[]> {
-  const categories: Record<string, Video[]> = {};
-  
-  for (const { markdownContent, category } of staticVideoData) {
-    const video = parseMarkdownToVideo(markdownContent);
-    if (video) {
-      if (!categories[category]) {
-        categories[category] = [];
-      }
-      categories[category].push(addCategoryToVideo(video, category));
-    }
-  }
-
-  return categories;
-}
-
-export async function getVideosByCategoryWithDynamic(): Promise<Record<string, Video[]>> {
+export async function getVideoBySlugWithDynamic(slug: string): Promise<Video | undefined> {
   const allVideos = await getAllVideosWithDynamic();
-  const categories: Record<string, Video[]> = {};
-  
-  for (const video of allVideos) {
-    if (!categories[video.category]) {
-      categories[video.category] = [];
-    }
-    categories[video.category].push(video);
-  }
-
-  // Sort videos within each category by upload date (newest first)
-  for (const category in categories) {
-    categories[category].sort((a, b) => 
-      new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
-    );
-  }
-
-  return categories;
+  return allVideos.find(v => v.slug === slug);
 }
 
+export function getAllTags(): string[] {
+  const allVideos = getAllVideos();
+  const tagSet = new Set<string>();
+
+  for (const video of allVideos) {
+    for (const tag of video.tags) {
+      tagSet.add(tag);
+    }
+  }
+
+  return Array.from(tagSet).sort();
+}
+
+export async function getAllTagsWithDynamic(): Promise<string[]> {
+  const allVideos = await getAllVideosWithDynamic();
+  const tagSet = new Set<string>();
+
+  for (const video of allVideos) {
+    for (const tag of video.tags) {
+      tagSet.add(tag);
+    }
+  }
+
+  return Array.from(tagSet).sort();
+}

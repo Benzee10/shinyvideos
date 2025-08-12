@@ -85,13 +85,13 @@ const AnalyticsPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Category Distribution */}
+          {/* Tag Distribution */}
           <div className="bg-gray-800/50 rounded-xl p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Videos by Category</h2>
+            <h2 className="text-xl font-bold text-white mb-4">Top Tags</h2>
             <div className="space-y-3">
-              {Object.entries(analytics.categoryStats).map(([category, count]) => (
-                <div key={category} className="flex justify-between items-center">
-                  <span className="text-gray-300">{category}</span>
+              {Object.entries(analytics.tagStats).slice(0, 10).map(([tag, count]) => (
+                <div key={tag} className="flex justify-between items-center">
+                  <span className="text-gray-300">{tag}</span>
                   <div className="flex items-center gap-2">
                     <div className="w-24 bg-gray-700 rounded-full h-2">
                       <div 

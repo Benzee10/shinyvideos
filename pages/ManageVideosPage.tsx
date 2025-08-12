@@ -1,25 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
-import { getAllVideos, getVideosByCategory } from '../lib/videos';
+import { getAllVideos, getAllTags } from '../lib/videos';
 import { Video } from '../types';
 import VideoCard from '../components/VideoCard';
 
 const ManageVideosPage: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [categorizedVideos, setCategorizedVideos] = useState<Record<string, Video[]>>({});
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const allVideos = getAllVideos();
-    const categorized = getVideosByCategory();
+    const tags = getAllTags();
     setVideos(allVideos);
-    setCategorizedVideos(categorized);
+    setAvailableTags(tags);
   }, []);
 
-  const filteredVideos = selectedCategory === 'all' 
+  const filteredVideos = selectedTag === 'all' 
     ? videos 
-    : categorizedVideos[selectedCategory] || [];
+    : videos.filter(video => video.tags.includes(selectedTag));
 
   const searchedVideos = filteredVideos.filter(video =>
     video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -52,13 +52,13 @@ const ManageVideosPage: React.FC = () => {
             />
           </div>
           <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            value={selectedTag}
+            onChange={(e) => setSelectedTag(e.target.value)}
             className="bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
-            <option value="all">All Categories</option>
-            {Object.keys(categorizedVideos).map(category => (
-              <option key={category} value={category}>{category}</option>
+            <option value="all">All Tags</option>
+            {availableTags.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
             ))}
           </select>
         </div>
@@ -70,8 +70,8 @@ const ManageVideosPage: React.FC = () => {
             <div className="text-sm text-gray-400">Total Videos</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-pink-400">{Object.keys(categorizedVideos).length}</div>
-            <div className="text-sm text-gray-400">Categories</div>
+            <div className="text-2xl font-bold text-pink-400">{availableTags.length}</div>
+            <div className="text-sm text-gray-400">Unique Tags</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-green-400">{searchedVideos.length}</div>
@@ -88,18 +88,20 @@ const ManageVideosPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Video Grid */}
+        {/* Videos Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {searchedVideos.map(video => (
             <div key={video.slug} className="relative group">
               <VideoCard video={video} views={0} />
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => handleDeleteVideo(video.slug)}
-                  className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg"
+                  className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition-colors"
                   title="Delete video"
                 >
-                  🗑️
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -107,8 +109,9 @@ const ManageVideosPage: React.FC = () => {
         </div>
 
         {searchedVideos.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">No videos found matching your criteria.</p>
+          <div className="text-center py-16">
+            <h2 className="text-2xl font-bold text-gray-300">No videos found</h2>
+            <p className="text-gray-500 mt-2">Try adjusting your search or filter settings.</p>
           </div>
         )}
       </div>

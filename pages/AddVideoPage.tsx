@@ -19,8 +19,7 @@ const AddVideoPage: React.FC = () => {
         thumbnail: '',
         duration: '',
         tags: '',
-        description: '',
-        category: ''
+        description: ''
     });
     const [generatedMarkdown, setGeneratedMarkdown] = useState('');
     const [copied, setCopied] = useState(false);
@@ -34,12 +33,11 @@ const AddVideoPage: React.FC = () => {
     };
 
     const validateForm = () => {
-        const { title, videoUrl, thumbnail, duration, category } = formData;
+        const { title, videoUrl, thumbnail, duration } = formData;
         if (!title.trim()) return 'Title is required';
         if (!videoUrl.trim()) return 'Video URL is required';
         if (!thumbnail.trim()) return 'Thumbnail URL is required';
         if (!duration.trim()) return 'Duration is required';
-        if (!category.trim()) return 'Category is required';
         return null;
     };
 
@@ -61,7 +59,6 @@ const AddVideoPage: React.FC = () => {
 **Thumbnail:** ${formData.thumbnail}
 **Duration:** ${formData.duration}
 **Tags:** ${tagsArray.join(', ')}
-**Category:** ${formData.category}
 **Description:** ${formData.description || '.'}`;
 
         setGeneratedMarkdown(markdownContent);
@@ -84,8 +81,7 @@ const AddVideoPage: React.FC = () => {
             thumbnail: '',
             duration: '',
             tags: '',
-            description: '',
-            category: ''
+            description: ''
         });
         setGeneratedMarkdown('');
     };
@@ -100,38 +96,20 @@ const AddVideoPage: React.FC = () => {
                     </p>
 
                     <form onSubmit={generateMarkdown} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
-                                    Title *
-                                </label>
-                                <input
-                                    type="text"
-                                    id="title"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter video title"
-                                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-2">
-                                    Category *
-                                </label>
-                                <input
-                                    type="text"
-                                    id="category"
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="e.g., Melissa Stratton, Nikoleta, etc."
-                                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                />
-                            </div>
+                        <div>
+                            <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
+                                Title *
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter video title"
+                                className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            />
                         </div>
 
                         <div>
@@ -260,7 +238,7 @@ const AddVideoPage: React.FC = () => {
                             <h3 className="text-lg font-semibold text-white mb-2">📝 Instructions:</h3>
                             <ol className="text-sm text-gray-300 space-y-1">
                                 <li>1. Copy the generated markdown above</li>
-                                <li>2. Create a new .md file in the appropriate category folder (lib/data/[category-name]/)</li>
+                                <li>2. Create a new .md file in any folder under lib/data/</li>
                                 <li>3. Use the slug as the filename: <code className="bg-gray-800 px-1 rounded">{createSlug(formData.title) || 'video-slug'}.md</code></li>
                                 <li>4. Paste the markdown content and save</li>
                                 <li>5. The video will automatically appear on the homepage!</li>

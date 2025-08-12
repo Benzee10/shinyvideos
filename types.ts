@@ -7,5 +7,4 @@ export interface Video {
   duration: string;
   tags: string[];
   description: string;
-  category: string;
 }

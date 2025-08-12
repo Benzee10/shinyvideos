@@ -3,21 +3,18 @@ import { useSearchParams } from 'react-router-dom';
 
 interface SearchFiltersProps {
   onSearch: (term: string) => void;
-  onFilter: (filters: { category?: string; tags?: string[]; duration?: string; uploadDate?: string }) => void;
-  categories: string[];
+  onFilter: (filters: { tags?: string[]; duration?: string; uploadDate?: string }) => void;
   availableTags: string[];
 }
 
 const SearchFilters: React.FC<SearchFiltersProps> = ({ 
   onSearch, 
   onFilter, 
-  categories, 
   availableTags 
 }) => {
   const [searchParams] = useSearchParams();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
   const [durationFilter, setDurationFilter] = useState(searchParams.get('duration') || '');
@@ -32,13 +29,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
 
   const handleFilterChange = () => {
     onFilter({
-      category: selectedCategory || undefined,
-      tags: selectedTag ? [selectedTag] : undefined, // Assuming only one tag can be selected from the state name
+      tags: selectedTag ? [selectedTag] : undefined,
       duration: durationFilter || undefined,
       uploadDate: uploadDateFilter || undefined,
     });
     updateSearchParams({
-      category: selectedCategory || undefined,
       tag: selectedTag || undefined,
       duration: durationFilter || undefined,
       uploadDate: uploadDateFilter || undefined,
@@ -50,7 +45,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
     const updatedTag = selectedTag === tag ? '' : tag; // Simple toggle for one tag
     setSelectedTag(updatedTag);
     onFilter({
-      category: selectedCategory || undefined,
       tags: updatedTag ? [updatedTag] : undefined,
       duration: durationFilter || undefined,
       uploadDate: uploadDateFilter || undefined,
@@ -59,7 +53,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   };
 
   const clearFilters = () => {
-    setSelectedCategory('');
     setSelectedTag('');
     setDurationFilter('');
     setUploadDateFilter('');
@@ -117,23 +110,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
       {/* Advanced Filters */}
       {isExpanded && (
         <div className="space-y-4">
-          {/* Category Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                handleFilterChange();
-              }}
-              className="w-full bg-gray-900/70 border border-gray-700 rounded-lg py-2 px-3 text-white"
-            >
-              <option value="">All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
+          
 
           {/* Duration Filter */}
           <div>
