@@ -10,8 +10,10 @@ const _viewCounts: Record<string, number> = {};
 const initializeViewCounts = (videos: Video[]): void => {
   videos.forEach(video => {
     const hash = video.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    // Formula to generate a somewhat realistic, varied, and deterministic view count
-    _viewCounts[video.slug] = (hash % 5000) * (video.tags.length) + (hash % 1000) + 100;
+    // Formula to generate high, varied, and deterministic view counts (10K to 500K+ range)
+    const baseViews = (hash % 50000) * (video.tags.length + 1) + (hash % 25000) + 10000;
+    const multiplier = (hash % 3) + 2; // Random multiplier between 2-4
+    _viewCounts[video.slug] = Math.floor(baseViews * multiplier);
   });
 };
 
