@@ -1,4 +1,4 @@
-import { getAllVideos } from './videos';
+import { getAllVideos, getAllVideosWithDynamic } from './videos';
 import { Video } from '../types';
 
 // Simulate a database (like a JSON file on a server) for view counts.
@@ -9,16 +9,26 @@ const _viewCounts: Record<string, number> = {};
 // This function creates a pseudo-random but deterministic starting view count based on the video slug.
 const initializeViewCounts = (videos: Video[]): void => {
   videos.forEach(video => {
-    const hash = video.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    // Formula to generate high, varied, and deterministic view counts (10K to 500K+ range)
-    const baseViews = (hash % 50000) * (video.tags.length + 1) + (hash % 25000) + 10000;
-    const multiplier = (hash % 3) + 2; // Random multiplier between 2-4
-    _viewCounts[video.slug] = Math.floor(baseViews * multiplier);
+    // Only initialize if not already set
+    if (_viewCounts[video.slug] === undefined) {
+      const hash = video.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      // Formula to generate high, varied, and deterministic view counts (10K to 500K+ range)
+      const baseViews = (hash % 50000) * (video.tags.length + 1) + (hash % 25000) + 10000;
+      const multiplier = (hash % 3) + 2; // Random multiplier between 2-4
+      _viewCounts[video.slug] = Math.floor(baseViews * multiplier);
+    }
   });
 };
 
-// Immediately initialize the counts when the module is loaded.
+// Initialize static videos immediately
 initializeViewCounts(getAllVideos());
+
+// Initialize dynamic videos asynchronously
+getAllVideosWithDynamic().then(allVideos => {
+  initializeViewCounts(allVideos);
+}).catch(error => {
+  console.warn('Could not initialize view counts for dynamic videos:', error);
+});
 
 /**
  * Increments the view count for a specific video slug.
@@ -29,8 +39,11 @@ export function trackView(slug: string): void {
   if (typeof _viewCounts[slug] === 'number') {
     _viewCounts[slug]++;
   } else {
-    // If for some reason a video is not in the initial list, start it at 1.
-    _viewCounts[slug] = 1;
+    // If for some reason a video is not in the initial list, generate a baseline count first
+    const hash = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const baseViews = (hash % 50000) * 3 + (hash % 25000) + 10000;
+    const multiplier = (hash % 3) + 2;
+    _viewCounts[slug] = Math.floor(baseViews * multiplier) + 1;
   }
 }
 
@@ -40,5 +53,12 @@ export function trackView(slug: string): void {
  * @returns The number of views.
  */
 export function getViews(slug: string): number {
-  return _viewCounts[slug] || 0;
+  if (_viewCounts[slug] === undefined) {
+    // Generate a baseline count if not initialized
+    const hash = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const baseViews = (hash % 50000) * 3 + (hash % 25000) + 10000;
+    const multiplier = (hash % 3) + 2;
+    _viewCounts[slug] = Math.floor(baseViews * multiplier);
+  }
+  return _viewCounts[slug];
 }
