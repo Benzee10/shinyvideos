@@ -71,8 +71,8 @@ async function loadVideosFromFiles(): Promise<Video[]> {
   const allVideos: Video[] = [];
 
   try {
-    // Import all markdown files from all folders
-    const moduleFiles = import.meta.glob('/lib/data/*/**.md', {
+    // Import all markdown files from all folders (supports unlimited nesting)
+    const moduleFiles = import.meta.glob('/lib/data/**/*.md', {
       as: 'raw',
       eager: false
     });

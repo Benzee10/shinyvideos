@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 // Helper to create a URL-friendly slug from a string
@@ -43,7 +42,7 @@ const AddVideoPage: React.FC = () => {
 
     const generateMarkdown = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const validationError = validateForm();
         if (validationError) {
             alert(validationError);
@@ -52,7 +51,7 @@ const AddVideoPage: React.FC = () => {
 
         const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
         const slug = createSlug(formData.title);
-        
+
         const markdownContent = `# ${formData.title}
 
 **Video URL:** ${formData.videoUrl}
@@ -229,20 +228,28 @@ const AddVideoPage: React.FC = () => {
                                 {copied ? '✓ Copied!' : 'Copy to Clipboard'}
                             </button>
                         </div>
-                        
+
                         <pre className="bg-gray-900/70 border border-gray-700 rounded-lg p-4 text-gray-300 overflow-x-auto text-sm whitespace-pre-wrap">
                             {generatedMarkdown}
                         </pre>
-                        
+
                         <div className="mt-6 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
                             <h3 className="text-lg font-semibold text-white mb-2">📝 Instructions:</h3>
-                            <ol className="text-sm text-gray-300 space-y-1">
+                            <ol className="list-decimal list-inside space-y-2 text-gray-300">
                                 <li>1. Copy the generated markdown above</li>
-                                <li>2. Create a new .md file in any folder under lib/data/</li>
+                                <li>2. Create a new .md file in any folder under lib/data/ (supports nested subdirectories)</li>
                                 <li>3. Use the slug as the filename: <code className="bg-gray-800 px-1 rounded">{createSlug(formData.title) || 'video-slug'}.md</code></li>
                                 <li>4. Paste the markdown content and save</li>
                                 <li>5. The video will automatically appear on the homepage!</li>
                             </ol>
+                            <div className="mt-4 p-3 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+                                <p className="text-blue-300 text-sm">
+                                    <strong>Example paths:</strong><br/>
+                                    • <code>lib/data/xerotica/Mila Azul/video-name.md</code><br/>
+                                    • <code>lib/data/studio/performer/scene/video-name.md</code><br/>
+                                    • <code>lib/data/category/subcategory/video-name.md</code>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
