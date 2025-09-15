@@ -7,7 +7,7 @@ const POPUP_DELAY = 5000; // 5 seconds delay before showing popup
 
 const DailyPopup: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const smartLink = "https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/";
+  const smartLink = "https://whatsappad.vercel.app/";
 
   useEffect(() => {
     const checkAndShowPopup = () => {
