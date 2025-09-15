@@ -19,7 +19,7 @@ const adConfigs: Record<AdPlacement, { width: number; height: number }> = {
 
 const AdBanner: React.FC<AdBannerProps> = ({ placement, className = '' }) => {
   const config = adConfigs[placement];
-  const smartLink = "https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/";
+  const smartLink = "https://whatsappad.vercel.app/";
 
   const baseClasses = "flex items-center justify-center bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg border border-purple-500/30 text-white cursor-pointer hover:from-purple-800/40 hover:to-pink-800/40 transition-all duration-300";
 
