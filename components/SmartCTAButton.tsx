@@ -14,7 +14,7 @@ const SmartCTAButton: React.FC<SmartCTAButtonProps> = ({
   size = 'md',
   className = '' 
 }) => {
-  const smartLink = "https://redirect01-z56s-git-main-benzee10000s-projects.vercel.app/";
+  const smartLink = "https://whatsappad.vercel.app/";
   
   const baseClasses = "font-bold rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer text-center";
   
